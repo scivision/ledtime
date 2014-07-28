@@ -4,7 +4,8 @@
 
 global firstrun
 firstrun = true;
-addpath('~/HST/code/cv-hst') % This is where rawDMCreader.m lives--trying to keep one authoritative copy of programs
+addpath('../cv-hst') % This is where rawDMCreader.m lives--trying to keep one 
+%                      authoritative copy of programs
 %% user parameters
 iLED = 4;  %choosing a single LED
 %iLED = 1:8; % chooses all 8 LEDs
@@ -12,7 +13,7 @@ iLED = 4;  %choosing a single LED
 frameReq = 1:200; %choose frame indices to read
 
 %fn1 = '150fpsX1387.fits';
-fn1 = '~/HSTdata/DataField/2013-04-14/HST1/2013-04-14T07-00-CamSer7196_frames_363000-1-369200.DMCdata';
+fn1 = '/cygdrive/e/2014-07-25/2014-07-25T00-35-CamSer1878.DMCdata';
 %% load first file
 if ~exist('DataPoints','var') 
 [Nf,NumLED,pCol,pRow,t,hMain] = TiffProto3(fn1,iLED,frameReq);

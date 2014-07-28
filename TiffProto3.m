@@ -3,7 +3,7 @@
 % Jan 2012
 function [Nf,iLED,pCol,pRow,t,hMain] = TiffProto3(fn,iLED,frameReq)
 
-enableClicking = false;
+enableClicking = true;
 
 if ~exist(fn,'file'),error([fn,' does not exist']), end
 
