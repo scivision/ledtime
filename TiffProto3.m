@@ -1,9 +1,10 @@
 % Image read test
 % Michael Hirsch
 % Jan 2012
-function [Nf,iLED,pCol,pRow,t,hMain] = TiffProto3(fn,iLED,frameReq)
+function [Nf,iLED,pCol,pRow,t,hMain] = TiffProto3(fn,iLED,frameReq,doflipud)
 
 enableClicking = true;
+
 
 if ~exist(fn,'file'),error([fn,' does not exist']), end
 
@@ -27,7 +28,7 @@ switch lower(ext)
         Nf = pinf.PrimaryData.Keywords{frind,2};
         if any(frameReq>Nf), error('frame request exceeds number of available frames'), end
 end %switch
-fps = 1/kineticSec; %FIXME is this actually true? (SDK manual says it is)
+fps = 1/kineticSec; %#ok<NASGU> %FIXME is this actually true? (SDK manual says it is)
 t = frameReq*kineticSec;
 %% show mouse click results
 % first see if we've already saved mouse clicks--if you want to pick new
@@ -36,7 +37,7 @@ t = frameReq*kineticSec;
 
 ClickFile = [name,'_Coord.h5'];
 
-ProtoImg = readFrame(fn,ext,ProtoFrame);
+ProtoImg = readFrame(fn,ext,ProtoFrame,doflipud);
 
 figure(1)
 set(1,'Name','LED Viewer','pos',[30,30,560,420])
@@ -52,18 +53,23 @@ axis('image')
 %% pick LED coordinates
 
 if exist(ClickFile,'file') % mouse clicks were already saved
-    if isoctave
+    try
+      if isoctave
         p = load(ClickFile,'-hdf5');
         pCol = p.pCol; pRow = p.pRow;
-    else
+      else
         pCol = h5read(ClickFile,'/pCol');
         pRow = h5read(ClickFile,'/pRow');
+      end
+      display(['Using coordinates user saved in file: ',ClickFile])
+      line(pCol,pRow,'color','r','marker','.','linestyle','none'); 
+    catch excp
+        display(['I couldn''t read ',ClickFile,' properly. Have you changed the number of LEDs used? Try making a new .h5 file'])
+        rethrow(excp)
     end
-    display(['Using coordinates user saved in file: ',ClickFile])
-    line(pCol,pRow,'color','r','marker','.','linestyle','none'); 
 elseif enableClicking
 
-htp = title('Choose LED'); %#ok<UNRCH>
+htp = title('Choose LED'); 
    hPm= msgbox(['Please click the locations of your ',num2str(length(iLED)),' LEDs'],'Please Pick Coordinates of LEDs','help');
 
 for i = iLED
@@ -84,14 +90,14 @@ display(['saving ',ClickFile])
 if isoctave
     save(ClickFile,'pCol','pRow','-hdf5')
 else
-    h5create(ClickFile,'/pCol',length(iLED),'datatype','int32')
+    h5create(ClickFile,'/pCol',max(iLED),'datatype','int32')
     h5write(ClickFile,'/pCol',pCol)
-    h5create(ClickFile,'/pRow',length(iLED),'datatype','int32')
+    h5create(ClickFile,'/pRow',max(iLED),'datatype','int32')
     h5write(ClickFile,'/pRow',pRow)
 end
 
 else
-    error(['I''m sorry, it appears a "..._Coord.h5" file doesn''t exist for ',fn])
+    error(['I''m sorry, it appears a "..._Coord.h5" file doesn''t exist for ',fn]) %#ok<*UNRCH>
 end %if  exist
 end %function
 

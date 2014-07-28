@@ -1,4 +1,4 @@
-function [axs,DataPoints] = FinalPlot(fn,frameReq,NumLED,pCol,pRow,t,hMain,axs,iCam) 
+function [axs,DataPoints] = FinalPlot(fn,frameReq,NumLED,pCol,pRow,t,hMain,axs,iCam,doflipud) 
 
 showProgress = true;
 
@@ -12,13 +12,13 @@ lc = ['b','r','m'];
 [~,~,ext] = fileparts(fn);
 set(2,'name',fn)
 
-nFrame = length(frameReq)
+nFrame = length(frameReq) %#ok<NOPRT>
 
 DataPoints = NaN(nFrame,length(NumLED)); %pre-allocate
 
 jFrm = 1;
 for iFrm = frameReq
-    ImageData = readFrame(fn,ext,iFrm); %read current image from disk
+    ImageData = readFrame(fn,ext,iFrm,doflipud); %read current image from disk
     if showProgress  
      set(hMain.img,'cData',ImageData) %#ok<*UNRCH> %update picture
     end
@@ -57,10 +57,15 @@ set(2,'pos',[100,30,1000,700])
 jj=1;
 for j=NumLED  
     if length(NumLED) > 1
-        axs(j) = subplot(3,3,jj,'parent',2);  %#ok<AGROW>
+            if length(NumLED)<5
+                sprc = 2;
+            else
+                sprc = 3;
+            end
+        axs(j) = subplot(sprc,sprc,jj,'parent',2);  %#ok<AGROW>
     else
         j = 1; %#ok<FXSET>
-        axs = axes('parent',2); %#ok<LAXES>
+        axs = axes('parent',2); 
     end
     
     set(axs(j),'nextplot','add')

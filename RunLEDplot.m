@@ -6,20 +6,22 @@ global firstrun
 firstrun = true;
 addpath('../cv-hst') % This is where rawDMCreader.m lives--trying to keep one 
 %                      authoritative copy of programs
+doflipud = false;
 %% user parameters
-iLED = 4;  %choosing a single LED
+iLED = 1:4;  %choosing a four led
 %iLED = 1:8; % chooses all 8 LEDs
 
 frameReq = 1:200; %choose frame indices to read
 
 %fn1 = '150fpsX1387.fits';
-fn1 = 'e:/2014-07-25/2014-07-25T00-35-CamSer1878.DMCdata';
+%fn1 = 'e:/2014-07-25/2014-07-25T00-35-CamSer1878.DMCdata';
+fn1 = '~/2014-07-25T00-35-CamSer1878_frames.fits';
 %% load first file
 if ~exist('DataPoints','var') 
-[Nf,NumLED,pCol,pRow,t,hMain] = TiffProto3(fn1,iLED,frameReq);
+[Nf,NumLED,pCol,pRow,t,hMain] = TiffProto3(fn1,iLED,frameReq,doflipud);
 
 %plot first file
-[axs,DataPoints]=FinalPlot(fn1,frameReq,NumLED,pCol,pRow,t,hMain,[],1);
+[axs,DataPoints]=FinalPlot(fn1,frameReq,NumLED,pCol,pRow,t,hMain,[],1,doflipud);
 else
 display('reusing existing DataPoints values')
 end
@@ -38,14 +40,21 @@ xlabel('Time')
 ylabel('Boolean')
 title(['LED #',int2str(iLED)])
 else
-for isp = iLED
-   subplot(3,3,isp)
-   plot(t,booldata(:,isp))
-   set(gca,'ylim',[-0.05,1.05],'xlim',[t(1),t(end)])
-   xlabel('time')
-   ylabel('boolean')
-   title(['LED #',int2str(iLED(isp))])
-end
+    if length(iLED)<5
+        sprc = 2;
+    else
+        sprc = 3;
+    end
+        for isp = iLED
+   
+         subplot(sprc,sprc,isp)
+           plot(t,booldata(:,isp))
+        set(gca,'ylim',[-0.05,1.05],'xlim',[t(1),t(end)])
+         xlabel('time')
+        ylabel('boolean')
+         title(['LED #',int2str(iLED(isp))])
+        end
+    
 end
 
 figure(4),clf(4)
