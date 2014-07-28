@@ -1,4 +1,4 @@
-function frame = readFrame(fn,ext,frameInd)
+function frame = readFrame(fn,ext,frameInd,doflipud)
 
 global isoctave
 
@@ -12,15 +12,24 @@ switch lower(ext)
         if isoctave
             ffn = [fn,'[*,*,',int2str(frameInd),':',int2str(frameInd),']'];
             try
-                frame = flipud(transpose(read_fits_image(ffn)));
+                frame = transpose(read_fits_image(ffn));
+                if doflipud
+                frame = flipud(frame);
+                end
             catch
                 pkg load fits
-                frame = flipud(transpose(read_fits_image(ffn)));
+                frame = transpose(read_fits_image(ffn));
+                if doflipud
+                frame = flipud(frame);
+                end
             end
         else
             pinf = fitsinfo(fn);
             ps = pinf.PrimaryData.Size;
-            frame = flipud(fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd frameInd]}));
+            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd frameInd]});
+            if doflipud
+            frame = flipud(frame);
+            end
         end
 end
 
