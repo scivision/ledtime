@@ -8,6 +8,7 @@ switch lower(ext)
         xPix = 512; yPix = 512; %FIXME assign programatically
         xBin = 1;   yBin = 1;
         [frame, rawFrameInd] = rawDMCreader(fn,xPix,yPix,xBin,yBin,frameInd);
+        frame = transpose(frame);
 	case '.fits'
         if isoctave
             ffn = [fn,'[*,*,',int2str(frameInd),':',int2str(frameInd),']'];

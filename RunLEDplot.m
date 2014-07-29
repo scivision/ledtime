@@ -15,7 +15,7 @@ frameReq = 1:200; %choose frame indices to read
 
 %fn1 = '150fpsX1387.fits';
 %fn1 = 'e:/2014-07-25/2014-07-25T00-35-CamSer1878.DMCdata';
-fn1 = '~/2014-07-25T00-35-CamSer1878_frames.fits';
+fn1 = '~/Z/media/samc/HST2014image/2014-07-25/2014-07-25T00-35-CamSer1878.DMCdata';
 %% load first file
 if ~exist('DataPoints','var') 
 [Nf,NumLED,pCol,pRow,t,hMain] = TiffProto3(fn1,iLED,frameReq,doflipud);
