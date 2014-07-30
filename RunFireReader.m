@@ -21,4 +21,3 @@ xlabel('sample index')
 ylabel('fire boolean')
 title([int2str(fs),' samples/sec fire (sensor is exposing for fire=1)'])
 legend('show')
->>>>>>> d6dc511829acdc814c6d910a12c104971e0ec21e
