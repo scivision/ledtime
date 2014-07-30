@@ -3,10 +3,8 @@
 %
 % Notes:
 % 1PPS is from the GPS unit, hopefully within 250ns of true time anywhere on Earth
-% ExtTrig is what the X-series PCIe-6321 STC-3 ASIC derives from 1PPS, it is supposed to make the camera 
-%         take a picture right then. 10^-6 or less error from 1PPS
-% fire is the camera "answering back" logical 1 during the sensor exposure, order 10^-6 sec. error hopefully 
-%         from ExtTrig
+% ExtTrig is what the X-series PCIe-6321 NI-STC3 ASIC derives from 1PPS
+% fire is the camera "answering back" logical 1
 clear,clc
 firefn = '~/junk/2014-07-30T21-36-CamSer1387.fire';
 Nbool = 3; %how many data lines were read
@@ -23,7 +21,7 @@ plot(firedata(:,1),'b','displayname','fire') %plot last so they'll be on top!
 set(gca,'xlim',xl)
 xlabel('sample index')
 ylabel('fire boolean')
-title([int2str(fs),' samples/sec fire (sensor is exposing for fire=1)'])
+title([int2str(fs),' samples/sec fire'])
 legend('show')
 %now plot separately, on same time axis
 figure(2),clf(2)
