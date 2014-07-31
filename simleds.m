@@ -1,7 +1,8 @@
 function [simled, t] = simleds(fs,ns,freqs,ppmoffset)
 % Michael Hirsch
 % july 2014
-% simulates what flashing LEDs should do with an error-free clock 
+% simulates what flashing LEDs should do with a real clock (error simulated
+% by ppmoffset variable
 %
 % inputs:
 % ns: number of samples of fake LEDs to make
