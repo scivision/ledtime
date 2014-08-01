@@ -1,4 +1,4 @@
-function [booldata,fs] = firereader(datfn,Nbool)
+function [booldata,fs,t] = firereader(datfn,Nbool)
 % Michael Hirsch July 2014
 % reads "fire.dat" 8-bit binary files
 
@@ -13,7 +13,7 @@ fid = fopen(datfn);
 fs = fread(fid,1,'double=>double',0,'l'); % get sample rate from "header" of file
 i = 0;
 %firedata = zeros(1e6,1,'uint8'); % a wild guess at preallocation
-booldata = false(1e6,Nbool); 
+booldata = false(20e6,Nbool); 
 
 try 
 
@@ -52,6 +52,7 @@ end
 booldata((i*fs):end,:) = [];
 
 fclose(fid);
-
+%%
+if nargout>2, t(:,1) = (0:length(booldata)-1)/fs;
 
 end
