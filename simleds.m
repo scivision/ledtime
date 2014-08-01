@@ -6,7 +6,7 @@ function [simled, t] = simleds(fs,ns,freqs,ppmoffset)
 %
 % inputs:
 % ns: number of samples of fake LEDs to make
-% fs: sampling frequency [Hz] (must match that of your measurements)
+% fs: sampling frequency (i.e. camera frame rate) [Hz] (must match that of your measurements)
 % freqs: frequency of each LED [Hz]
 % ppmoffset: correction factor for the percentage error in FPGA clock, in
 %            parts per million (ppm)
