@@ -13,8 +13,8 @@ cam1simoffset = 0;  % this one-time slide matches the random LED start to
 %%
 fps = 30;    %[Hz] must match your imaging frame rate  (30 fps == 30 Hz)
 nscam = 3000; %arbitrary number of samples you want to simulate ( 100 seconds in this case )
-freqled = [1.5625,3.125, 6.25];%,12.5]; %[Hz] frequency of flashing
-NumLED = 1:3;
+freqled = [1.5625,3.125];% 6.25];%,12.5]; %[Hz] frequency of flashing
+NumLED = 1:2;
 
 fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
                % 0 means no correction
@@ -22,6 +22,9 @@ fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crysta
                % it would take many 10000's of samples for this FPGA crystal effect to
                % be significant
                
+%%
+global isoctave
+isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 [ledbool,tcam] = simleds(fps,nscam,freqled,fpgappmoffset); 
 
 %% plot simulated camera
