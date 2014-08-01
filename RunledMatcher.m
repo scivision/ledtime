@@ -91,5 +91,5 @@ for sec = secondsToRead
     if any(Nmatch(sec,:)/length(booldata) < 0.97)
         warning(['large percentage of mismatches in second ',int2str(sec)])
     end
-    pause(1)
+    if showProgress, pause(1), end
 end
