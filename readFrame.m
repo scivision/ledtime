@@ -1,4 +1,6 @@
-function frame = readFrame(fn,ext,frameInd,doflipud)
+function frame = readFrame(fn,ext,frameInd,doflipud,dotranspose)
+
+if nargin<5, dotranspose = false; end
 
 global isoctave
 
@@ -8,31 +10,30 @@ switch lower(ext)
         xPix = 512; yPix = 512; %FIXME assign programatically
         xBin = 1;   yBin = 1;
         [frame, rawFrameInd] = rawDMCreader(fn,xPix,yPix,xBin,yBin,frameInd);
-        frame = transpose(frame);
+        
+
 	case '.fits'
         if isoctave
             ffn = [fn,'[*,*,',int2str(frameInd),':',int2str(frameInd),']'];
             try
                 frame = transpose(read_fits_image(ffn));
-                if doflipud
-                frame = flipud(frame);
-                end
             catch
                 pkg load fits
                 frame = transpose(read_fits_image(ffn));
-                if doflipud
-                frame = flipud(frame);
-                end
             end
         else
             pinf = fitsinfo(fn);
             ps = pinf.PrimaryData.Size;
-            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd frameInd]});
-            if doflipud
-            frame = flipud(frame);
-            end
+            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd frameInd]});       
         end
+end %switch
+%% transpose, flip
+if dotranspose
+    frame = transpose(frame);
 end
 
+if doflipud
+    frame = flipud(frame);
+end
 
 end
