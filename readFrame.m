@@ -14,7 +14,7 @@ switch lower(ext)
 
 	case '.fits'
         if isoctave
-            ffn = [fn,'[*,*,',int2str(frameInd),':',int2str(frameInd),']'];
+            ffn = [fn,'[*,*,',int2str(frameInd(1)),':',int2str(frameInd(end)),']'];
             try
                 frame = transpose(read_fits_image(ffn));
             catch
@@ -24,7 +24,7 @@ switch lower(ext)
         else
             pinf = fitsinfo(fn);
             ps = pinf.PrimaryData.Size;
-            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd frameInd]});       
+            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd(1) frameInd(end)]});       
         end
 end %switch
 %% transpose, flip
