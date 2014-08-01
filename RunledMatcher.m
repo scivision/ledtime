@@ -53,7 +53,7 @@ pRow = h5read(ClickFile1,'/pRow');
 
 %% load real camera data
 doflipud = true; %orients data in accord with your _Coord.h5 file
-
+dotranspose = true;
 
 for sec = secondsToRead
     frameReq = ((sec-1)*fps + 1) : (sec*fps); %we'll grab these from disk to work with 
@@ -61,7 +61,7 @@ for sec = secondsToRead
     jFrm = 0;
     for iFrm = frameReq
         jFrm = jFrm+1;
-        ImageData = readFrame(cam1fn,ext1,iFrm,doflipud); %read current image from disk
+        ImageData = readFrame(cam1fn,ext1,iFrm,doflipud,dotranspose); %read current image from disk
 
         jLED = 0;
         for iLED = NumLED
@@ -76,6 +76,10 @@ for sec = secondsToRead
     simbool = ledbool((cam1simoffset+1):(cam1simoffset+fps),:);
     
     if showProgress
+        figure(22),clf(22)
+        imagesc(ImageData),colormap(gray)
+        line(pCol,pRow,'color','r','marker','.','linestyle','none'); 
+        
         figure(23),clf(23)
         for ipl = 1:length(NumLED)
             subplot(length(NumLED),1,ipl)
