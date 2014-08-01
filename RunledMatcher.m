@@ -15,6 +15,7 @@ fps = 30;    %[Hz] must match your imaging frame rate  (30 fps == 30 Hz)
 nscam = 3000; %arbitrary number of samples you want to simulate ( 100 seconds in this case )
 freqled = [1.5625,3.125];% 6.25];%,12.5]; %[Hz] frequency of flashing
 NumLED = 1:2;
+secondsToRead = 10:12; % vector of seconds you want to read
 
 fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
                % 0 means no correction
@@ -54,7 +55,7 @@ pRow = h5read(ClickFile1,'/pRow');
 doflipud = true; %orients data in accord with your _Coord.h5 file
 
 
-for sec = 10:12 % read the 10th second, after the camera has properly started up 
+for sec = secondsToRead
     frameReq = ((sec-1)*fps + 1) : (sec*fps); %we'll grab these from disk to work with 
     
     jFrm = 0;
