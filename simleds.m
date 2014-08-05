@@ -1,4 +1,4 @@
-function [simled, t] = simleds(fs,ns,freqs,ppmoffset)
+function [simled, t] = simleds(fs,ns,freqreq,ppmoffset)
 % Michael Hirsch
 % july 2014
 % simulates what flashing LEDs should do with a real clock (error simulated
@@ -18,20 +18,22 @@ function [simled, t] = simleds(fs,ns,freqs,ppmoffset)
 
 if nargin<4, ppmoffset = 0; end
 
-freqs = freqs * (1 + ppmoffset*1e-6);
+freqs(:,1) = freqreq * (1 + ppmoffset*1e-6);
 
 t(:,1) = (0:ns-1) / fs;
 
 nfreq = length(freqs);
 
-simled = false(ns,nfreq);
+%simled = false(ns,nfreq);
 
-jfreq = 0;
-for freq = freqs
-    jfreq = jfreq +1;
-    simled(:,jfreq) = logical(square(t*(2*pi)*freq) +1); % +1 corrects for DC offset
+
+phase = [0,pi,pi,pi];
+for ifreq = 1:nfreq
+    %simled(:,jfreq) = logical(square(t*(2*pi)*freq) +1); % +1 corrects for DC offset
+    simled(:,ifreq) = cos(t*(2*pi)*freqs(ifreq) + phase(ifreq)); % > 0; %#ok<AGROW>
 end
 
-display(['LED periods [sec.]: ',num2str(1./freqs)])
+display('LED periods [sec.]: ')
+display(num2str(1./freqs))
 
 end
