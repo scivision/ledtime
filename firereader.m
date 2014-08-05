@@ -1,4 +1,4 @@
-function [booldata,fs,t] = firereader(datfn,Nbool)
+function [booldata,fs,t] = firereader(datfn,Nbool,secondstoRead)
 % Michael Hirsch July 2014
 % reads "fire.dat" 8-bit binary files
 

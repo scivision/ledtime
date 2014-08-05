@@ -1,21 +1,34 @@
 %RunledMatcher
 clear
 
-showProgress = true; %optional
+showLines = true; %optional
+showImage = false;
 
-cam1fn = '~/tmp/2014-07-30T21-36-CamSer1387.DMCdata';
+%pick one or the other (or neither) but not both
+showMeasBool = false;
+showMeasRaw = true;
+rawylim = [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 
-addpath('../cv-hst') % whereever rawDMCreader.m lives
 
-cam1simoffset = 0;  % this one-time slide matches the random LED start to 
+%path = 'D:\2014-07-31cam1878\';
+path = '~/Z/cygdrive/d/2014-07-31cam1878/';
+
+cam1fn = '2014-07-31T19-51-CamSer1878.DMCdata';
+
+cam1fn = [path,cam1fn];
+
+
+addpath('../cv-hst') % wherever rawDMCreader.m lives
+
+cam1simoffset = 38;  %POSITIVE INTEGER % this one-time slide matches the random LED start to 
                     % the first observation -- should be constant for the rest of the file!
 %cam2simoffset = 0; %for the second camera
 %%
 fps = 30;    %[Hz] must match your imaging frame rate  (30 fps == 30 Hz)
 nscam = 3000; %arbitrary number of samples you want to simulate ( 100 seconds in this case )
-freqled = [1.5625,3.125];% 6.25];%,12.5]; %[Hz] frequency of flashing
-NumLED = 1:2;
-secondsToRead = 10:12; % vector of seconds you want to read
+freqled = [1.5625,3.125, 6.25,12.5]; %[Hz] frequency of flashing
+NumLED = 1:3;
+secondsToRead = 3; % vector of seconds you want to read
 
 fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
                % 0 means no correction
@@ -26,7 +39,7 @@ fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crysta
 %%
 global isoctave
 isoctave = logical(exist('OCTAVE_VERSION','builtin'));
-[ledbool,tcam] = simleds(fps,nscam,freqled,fpgappmoffset); 
+[ledbool,tcam] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
 
 %% plot simulated camera
 % figure(10),clf(10)
@@ -43,7 +56,8 @@ isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 [path1,name1,ext1] = fileparts(cam1fn);
 %[path2,name2] = fileparts(cam2fn);
 
-ClickFile1 = [path1,'/',name1,'_Coord.h5'];
+%ClickFile1 = [path1,'/',name1,'_Coord.h5'];
+ClickFile1 = [name1,'_Coord.h5'];
 %ClickFile2 = [name2,'_Coord.h5'];
 
 display(['using file ',ClickFile1,' for LED pixel coordinates'])
@@ -75,19 +89,31 @@ for sec = secondsToRead
     
     simbool = ledbool((cam1simoffset+1):(cam1simoffset+fps),:);
     
-    if showProgress
-        figure(22),clf(22)
+    if showImage
+        figure(22),clf(22) %#ok<*UNRCH>
         imagesc(ImageData),colormap(gray)
         line(pCol,pRow,'color','r','marker','.','linestyle','none'); 
-        
+    end
+    
+    if showLines
         figure(23),clf(23)
         for ipl = 1:length(NumLED)
-            subplot(length(NumLED),1,ipl)
-            plot(booldata(:,ipl),'b'),hold('on')
-            plot(simbool(:,ipl),'r')
-            ylabel(['LED ',int2str(NumLED(ipl))])
+            ax = subplot(length(NumLED),1,ipl);
+            if showMeasBool
+                line(1:fps,booldata(:,ipl),'color','b')
+                line(1:fps,simbool(:,ipl),'color','r')
+            end
+            if showMeasRaw
+               ax = plotyy(1:fps,DataPoints(:,ipl),1:fps,simbool(:,ipl));
+               set(ax(1),'ylim',rawylim)
+               ylabel(ax(2),['sim. LED ',int2str(NumLED(ipl))])
+            end
+            ylabel(ax(1),['meas. LED ',int2str(NumLED(ipl))])
         end
         xlabel(['sample index from t=',num2str(sec)])
+        annotation('textbox',[0.4,0.95,0.3,0.05],...
+                   'string',['ledOffset=',int2str(cam1simoffset)],...
+                   'HorizontalAlignment','center')
     end
         
     Nmatch(sec,:) = sum(booldata == simbool); %#ok<SAGROW>
@@ -95,5 +121,5 @@ for sec = secondsToRead
     if any(Nmatch(sec,:)/length(booldata) < 0.97)
         warning(['large percentage of mismatches in second ',int2str(sec)])
     end
-    if showProgress, pause(1), end
+    if showLines || showImage, pause(1), end
 end

@@ -6,7 +6,12 @@
 % ExtTrig is what the X-series PCIe-6321 NI-STC3 ASIC derives from 1PPS
 % fire is the camera "answering back" logical 1
 clear,clc
-firefn = '~/U/collaborate/HST/three.fire';
+
+path = '~/Z/cygdrive/d/2014-07-31cam1387/';
+firefn = '2014-07-31T19-51-CamSer1387.fire';    %'~/U/collaborate/HST/three.fire';
+
+firefn = [path,firefn];
+
 Nbool = 3; %how many data lines were read
 [firedata, fs,t] = firereader(firefn,Nbool);
 
