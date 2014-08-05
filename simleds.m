@@ -27,10 +27,10 @@ nfreq = length(freqs);
 %simled = false(ns,nfreq);
 
 
-phase = [0,pi,pi,pi];
+phase = [0,-pi/2,-3/2*pi];
 for ifreq = 1:nfreq
     %simled(:,jfreq) = logical(square(t*(2*pi)*freq) +1); % +1 corrects for DC offset
-    simled(:,ifreq) = cos(t*(2*pi)*freqs(ifreq) + phase(ifreq)); % > 0; %#ok<AGROW>
+    simled(:,ifreq) = cos(t*(2*pi)*freqs(ifreq) + phase(ifreq)) > 0; %#ok<AGROW>
 end
 
 display('LED periods [sec.]: ')
