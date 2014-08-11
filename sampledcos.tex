@@ -1,0 +1,42 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{draftwatermark}
+\SetWatermarkScale{4}
+\author{Michael~Hirsch, MSEE }
+\title{When does a sampled cosinuoid equal 0?}
+\begin{document}
+\maketitle
+
+For continuous time $t$, trivially:
+\[
+y = \cos{t} = \pm 1, \quad t\in 0,\pm \pi, \pm 2\pi,\ldots, \pi m, \quad m\in \mathbb{Z}
+\]
+
+Likewise for continous time, a cosinusoid with angular frequency $\omega$ and time $t$:
+\[
+y = \cos{\omega t} = \pm 1, \quad t\in 0,\frac{\pi}{\omega},\frac{2\pi}{\omega},\ldots, \frac{\pi m}{w}, \quad m\in \mathbb{Z}
+\]
+
+By inspection, for continuous time frequency $f$:
+\[
+y = \cos{2\pi f t} = \pm 1, \quad t\in 0,\frac{\pi}{2 \pi f},\frac{2\pi}{2\pi f},\ldots, \frac{\pi m}{2 \pi f}, \quad m\in \mathbb{Z}
+\]
+
+
+The same result is realized in discrete time with sampling period $T_s$ at time samples $n$:
+\[
+y = \cos{2\pi f t} = \pm 1, \quad n = \textrm{nint}\left[\frac{\pi}{2\pi f T_s}\right] m, \quad m\in \mathbb{Z}
+\]
+where nint[$\cdot$] means round to the nearest integer.
+
+That is, the output $y=\pm 1$ in discrete time every $n$ samples.
+
+To account for a phase shift $\phi$, a similar argument leads to the final desired result:
+
+\[
+n = 
+\]
+\end{document}
