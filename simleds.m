@@ -1,4 +1,4 @@
-function [simled, t] = simleds(fs,ns,freqreq,ppmoffset)
+function [simled, t, isamp] = simleds(fs,ns,freqreq,ppmoffset)
 % Michael Hirsch
 % july 2014
 % simulates what flashing LEDs should do with a real clock (error simulated
