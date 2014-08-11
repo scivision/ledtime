@@ -2,12 +2,12 @@
 clear
 
 showLines = true; %optional
-showImage = false;
+showImage = true;
 
 %pick one or the other (or neither) but not both
 showMeasBool = false;
 showMeasRaw = true;
-rawylim = [1000,1500]; %arbitrary, so huge spikes don't mess up graph
+rawylim =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 
 
 %path = 'D:\2014-07-31cam1878\';
@@ -18,7 +18,7 @@ cam1fn = '2014-07-31T19-51-CamSer1878.DMCdata';
 cam1fn = [path,cam1fn];
 
 
-addpath('../cv-hst') % wherever rawDMCreader.m lives
+addpath('../hist-utils') % wherever rawDMCreader.m lives
 
 cam1simoffset = 38;  %POSITIVE INTEGER % this one-time slide matches the random LED start to 
                     % the first observation -- should be constant for the rest of the file!
@@ -39,7 +39,7 @@ fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crysta
 %%
 global isoctave
 isoctave = logical(exist('OCTAVE_VERSION','builtin'));
-[ledbool,tcam] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
+[ledbool,tcam,isamp] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
 
 %% plot simulated camera
 % figure(10),clf(10)
@@ -54,16 +54,14 @@ isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 % end
 %% load LED coordinates
 [path1,name1,ext1] = fileparts(cam1fn);
-%[path2,name2] = fileparts(cam2fn);
 
-%ClickFile1 = [path1,'/',name1,'_Coord.h5'];
 ClickFile1 = [name1,'_Coord.h5'];
-%ClickFile2 = [name2,'_Coord.h5'];
 
 display(['using file ',ClickFile1,' for LED pixel coordinates'])
 
-pCol = h5read(ClickFile1,'/pCol');
-pRow = h5read(ClickFile1,'/pRow');
+rc = transpose(h5read(ClickFile1,'/ledrowcol')); %tranpose b/c matlab 
+row = rc(:,1);
+col = rc(:,2);
 
 %% load real camera data
 doflipud = true; %orients data in accord with your _Coord.h5 file
@@ -77,10 +75,18 @@ for sec = secondsToRead
         jFrm = jFrm+1;
         ImageData = readFrame(cam1fn,ext1,iFrm,doflipud,dotranspose); %read current image from disk
 
+        if showImage
+            figure(22)%,clf(22)
+            imagesc(ImageData),colormap(gray)
+            set(gca,'ydir','normal','clim',[1000 1200])
+            line(col,row,'color','r','marker','.','linestyle','none'); 
+            colorbar
+        end
+        
         jLED = 0;
         for iLED = NumLED
             jLED = jLED+1;
-            DataPoints(jFrm,jLED) = ImageData(pRow(iLED),pCol(iLED)); %#ok<SAGROW> %pull out the data number for this LED for this frame
+            DataPoints(jFrm,jLED) = ImageData(row(iLED),col(iLED)); %#ok<SAGROW> %pull out the data number for this LED for this frame
         end
     end
     
@@ -89,11 +95,7 @@ for sec = secondsToRead
     
     simbool = ledbool((cam1simoffset+1):(cam1simoffset+fps),:);
     
-    if showImage
-        figure(22),clf(22) %#ok<*UNRCH>
-        imagesc(ImageData),colormap(gray)
-        line(pCol,pRow,'color','r','marker','.','linestyle','none'); 
-    end
+
     
     if showLines
         figure(23),clf(23)
@@ -105,7 +107,7 @@ for sec = secondsToRead
             end
             if showMeasRaw
                ax = plotyy(1:fps,DataPoints(:,ipl),1:fps,simbool(:,ipl));
-               set(ax(1),'ylim',rawylim)
+               if ~isempty(rawylim), set(ax(1),'ylim',rawylim), end
                ylabel(ax(2),['sim. LED ',int2str(NumLED(ipl))])
             end
             ylabel(ax(1),['meas. LED ',int2str(NumLED(ipl))])
