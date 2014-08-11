@@ -30,6 +30,7 @@ nfreq = length(freqs);
 
 
 phase = [0,-pi/2,-3/2*pi];
+phase = phase(1:nfreq)
 %for ifreq = 1:nfreq
     %simled(:,jfreq) = logical(square(t*(2*pi)*freq) +1); % +1 corrects for DC offset
  %   cosled(:,ifreq) = cos(t*(2*pi)*freqs(ifreq) + phase(ifreq));
