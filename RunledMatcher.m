@@ -158,7 +158,7 @@ if all(comparisonSummary==true)
     display('******************************')
 else
     display('LED match results: ')
-    display('LED 1   LED2
+    display('LED 1   LED2')
     display(comparisonSummary)
 
 end
