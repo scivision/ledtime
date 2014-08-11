@@ -5,8 +5,8 @@ clear
 dofire = false; %true to generate simulated fire/pps/trig waveforms
 %% camera imaging
 fps = 30; %[Hz] must match your imaging frame rate  (30 fps == 30 Hz)
-nscam = 30; %arbitrary number of samples you want to simulate
-freqled = [1.5625,3.125, 6.25,12.5,25,50,100,200]; %[Hz] frequency of flashing
+nscam = 150; %arbitrary number of samples you want to simulate
+freqled = [1.5625,3.125, 6.25,12.5,25,50,100,200]; %[Hz] frequency of flashing  1 X N vector
 
 NumLED = 1:3;
 
@@ -16,7 +16,7 @@ fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crysta
                % it would take many 10000's of samples for this FPGA crystal effect to
                % be significant
                
-[ledbool,tcam] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
+[ledbool,tcam,isamp] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
 %% fire/pps/trig sampling
 if dofire
     asicppmoffset = 0;
@@ -33,16 +33,21 @@ jled = 0;
 for iled = NumLED
     jled = jled + 1;
     subplot(Nled,1,jled)
-    plot(tcam,ledbool(:,iled))
+    line(tcam,ledbool(:,iled))
+    %plot sample locations
+    for ismp = 1:length(isamp{iled})
+        ct = tcam(isamp{iled}(ismp)); % index of t that sample was taken at
+        line([ct,ct],[0,1],'color','r')
+    end
     xlabel('time [sec.]')
     ylabel('LED (boolean)')
-    title(['Simulated ',num2str(freqled(iled)),'Hz LED, fs=',num2str(fps),'Hz,  number of samples: ',int2str(nscam)])
+    title(['Simulated ',num2str(freqled(iled)),'Hz LED, fs=',num2str(fps),'Hz,  number of samples: ',int2str(nscam),'  red lines are where simulated vs. measured samples are to be taken.'])
     grid('on')
 end
 
 %% plot fire/pps/trig
 if dofire
-    figure(21),clf(21)
+    figure(21),clf(21) %#ok<*UNRCH>
 
     plot(tfire,firebool)
     xlabel('time [sec.]')
