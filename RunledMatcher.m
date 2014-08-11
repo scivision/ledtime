@@ -23,10 +23,16 @@ addpath('../hist-utils') % wherever rawDMCreader.m lives
 
 cam1simoffset =  6;  %POSITIVE INTEGER % this one-time slide matches the random LED start to 
                     % the first observation -- should be constant for the rest of the file!
-
-%%
+%% octave setup
+global isoctave
+isoctave = logical(exist('OCTAVE_VERSION','builtin'));
+if isoctave
+    page_screen_output(0);
+    page_output_immediately(1);
+end
+%% simulation parameters
 fps = 30;    %[Hz] must match your imaging frame rate  (30 fps == 30 Hz)
-nscam = 30000; %arbitrary number of samples you want to simulate ( 1000 seconds in this case, from 30000samples/30samples/sec = 1000 sec)
+nscam = 86400*fps; %arbitrary number of samples you want to simulate ( 86400 sec is 24 hours)
 freqled = [1.5625,3.125, 6.25,12.5]; %[Hz] frequency of flashing
 NumLED = 1:2;
 secondsToRead = 1:15; % vector of seconds you want to read
@@ -37,11 +43,8 @@ fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crysta
                % it would take many 10000's of samples for this FPGA crystal effect to
                % be significant
                
-%%
-global isoctave
-isoctave = logical(exist('OCTAVE_VERSION','builtin'));
+%% simulate LEDs
 [ledbool,tcam,isamp] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
-
 %% plot simulated camera
 % figure(10),clf(10)
 % nled = length(freqled);
@@ -59,8 +62,13 @@ isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 ClickFile1 = [name1,'_Coord.h5'];
 
 display(['using file ',ClickFile1,' for LED pixel coordinates'])
-
-rc = transpose(h5read(ClickFile1,'/ledrowcol')); %tranpose b/c matlab 
+if ~isoctave %matlab
+    rc = transpose(h5read(ClickFile1,'/ledrowcol')); %tranpose b/c matlab 
+else %octave
+    rcl = load(ClickFile1,'-hdf5');
+    rc = transpose(rcl.ledrowcol);
+end
+    
 row = rc(:,1);
 col = rc(:,2);
 
@@ -69,8 +77,8 @@ doflipud = true; %orients data in accord with your _Coord.h5 file
 dotranspose = true;
 
 for sec = secondsToRead
+    tic
     frameReq = ((sec-1)*fps + 1) : (sec*fps); %we'll grab these from disk to work with, these are the sample indices of this second 
-    display(['reading frames ',int2str(frameReq(1)),' to ',int2str(frameReq(end))])
     jFrm = 0;
     for iFrm = frameReq
         jFrm = jFrm+1;
@@ -149,7 +157,8 @@ for sec = secondsToRead
 %     end
 %----------
     if showLines || showImage, pause(1), end
-end
+        display(['read/processed frames ',int2str(frameReq(1)),' to ',int2str(frameReq(end)),' for sec. ',num2str(sec),' in ',num2str(toc,'%0.1f'),' seconds.'])
+end %for sec
 
 %% summary
 if all(comparisonSummary==true)
