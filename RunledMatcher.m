@@ -157,7 +157,8 @@ if all(comparisonSummary==true)
     display(['seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
     display('******************************')
 else
-    display(['LED match results: '])
+    display('LED match results: ')
+    display('LED 1   LED2
     display(comparisonSummary)
 
 end
