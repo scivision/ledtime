@@ -43,6 +43,7 @@ for iled = NumLED
     ylabel('LED (boolean)')
     title(['Simulated ',num2str(freqled(iled)),'Hz LED, fs=',num2str(fps),'Hz,  number of samples: ',int2str(nscam),'  red lines are where simulated vs. measured samples are to be taken.'])
     grid('on')
+    set(gca,'ylim',[-0.01,1.01])
 end
 
 %% plot fire/pps/trig
