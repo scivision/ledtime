@@ -3,10 +3,15 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{draftwatermark}
-\SetWatermarkScale{4}
-\author{Michael~Hirsch, MSEE }
+%\usepackage{draftwatermark}
+%\SetWatermarkScale{4}
+%\SetWatermarkLightness{0.9}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\author{Michael~Hirsch, MSEE,  Ph.D. EE candidate }
 \title{When does a sampled cosinuoid equal 0?}
+\rhead{draft} 
 \begin{document}
 \maketitle
 
@@ -28,15 +33,22 @@ y = \cos{2\pi f t} = \pm 1, \quad t\in 0,\frac{\pi}{2 \pi f},\frac{2\pi}{2\pi f}
 
 The same result is realized in discrete time with sampling period $T_s$ at time samples $n$:
 \[
-y = \cos{2\pi f t} = \pm 1, \quad n = \textrm{nint}\left[\frac{\pi}{2\pi f T_s}\right] m, \quad m\in \mathbb{Z}
+y = \cos{2\pi f t} = \pm 1, \quad n = \textrm{round}\left[\frac{\pi}{2\pi f T_s}\right] m, \quad m\in \mathbb{Z}
 \]
-where nint[$\cdot$] means round to the nearest integer.
-
-That is, the output $y=\pm 1$ in discrete time every $n$ samples.
-
+where round[$\cdot$] means round to the nearest integer.
+That is, the discrete time output $y=\pm 1$ at the sample indices in the vector $n$.
 To account for a phase shift $\phi$, a similar argument leads to the final desired result:
 
-\[
-n = 
-\]
+\begin{equation}\label{eq:sampint}
+n = \textrm{round}\left[\frac{\pi}{2\pi f T_s} + \left|\frac{\phi}{2\pi f T_s}\right|\right]
+\end{equation}
+
+In Matlab, \eqref{eq:sampint} is implemented via the code:
+
+\begin{verbatim}
+sampinterval = pi./(2*pi*f*Ts);
+sampoffset = abs(phase./(2*pi*f*Ts)) + 1 
+n = round(sampinterval:sampoffset:ns)
+\end{verbatim}
+where the \texttt{+1} accounts for the one-based Matlab indexing, and \texttt{ns} is the total number of samples.
 \end{document}
