@@ -76,6 +76,7 @@ col = rc(:,2);
 doflipud = true; %orients data in accord with your _Coord.h5 file
 dotranspose = true;
 
+try
 for sec = secondsToRead
     tic
     frameReq = ((sec-1)*fps + 1) : (sec*fps); %we'll grab these from disk to work with, these are the sample indices of this second 
@@ -159,7 +160,7 @@ for sec = secondsToRead
     if showLines || showImage, pause(1), end
         display(['read/processed frames ',int2str(frameReq(1)),' to ',int2str(frameReq(end)),' for sec. ',num2str(sec),' in ',num2str(toc,'%0.1f'),' seconds.'])
 end %for sec
-
+end %try
 %% summary
 if all(comparisonSummary==true)
     display('******************************')
