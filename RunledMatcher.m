@@ -1,7 +1,7 @@
 %RunledMatcher
 clear
 
-secondsToRead(:,1) = 1:5:20; % vector of seconds you want to read
+secondsToRead(:,1) = 1:1:20; % vector of seconds you want to read
 %secondsToRead(:,1) = 1200:40:1400;
 
 showLines = true; %optional
@@ -12,7 +12,7 @@ showImage = false; %optional, takes a lot longer to process
 showMeasBool = false;
 showMeasRaw = true;
 
-usecam = 1; %[1,2]; %cam numbers to use
+usecam = [1,2]; %cam numbers to use
 
 %path = 'D:\';
 %path = '~/Z/cygdrive/d/';
@@ -58,14 +58,16 @@ end
 
 %% simulate LEDs
 % tcam took a lot of RAM, OK to use if you need it though.
-if ismember(usecam,1)
+if any(ismember(usecam,1))
     [ledbool1,~,isamp1] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset1); 
 end
-if ismember(usecam,2)
+if any(ismember(usecam,2))
     [ledbool2,~,isamp2] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset2);
 end
 %% load real camera data
 tn = 1:fps; %sample instances
+comparisonSummary1 = [];
+comparisonSummary2 = [];
 try
 for isec = 1:nt
     secn = secondsToRead(isec);
@@ -73,14 +75,14 @@ for isec = 1:nt
     frameReq = ((secn-1)*fps + 1) : (secn*fps); %we'll grab these from disk to work with, these are the sample indices of this second 
 
     %load cam1 analysis
-    if ismember(usecam,1)
-        comparisonSummary1 = getPointsCam(frameReq,...
+    if any(ismember(usecam,1))
+        comparisonSummary1 = getPointsCam(comparisonSummary1,frameReq,...
                cam1fn,showImage,NumLED,cam1simoffset,ledbool1,fps,isamp1,...
                secn,tn,showMeasBool,showMeasRaw,showLines,rawylim1,1);
     end
     %load cam2 analysis
-    if ismember(usecam,2)
-        comparisonSummary2 = getPointsCam(frameReq,...
+    if any(ismember(usecam,2))
+        comparisonSummary2 = getPointsCam(comparisonSummary2,frameReq,...
                cam2fn,showImage,NumLED,cam2simoffset,ledbool2,fps,isamp2,...
                secn,tn,showMeasBool,showMeasRaw,showLines,rawylim2,2);
     end
@@ -99,7 +101,7 @@ catch excp
     rethrow(excp)
 end %try
 %% summary
-if ismember(usecam,1)
+if any(ismember(usecam,1))
     if all(comparisonSummary1(secondsToRead,:)==true) %test only the seconds tested
         display('******************************')
         display(['cam1: seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
@@ -110,7 +112,7 @@ if ismember(usecam,1)
         display([secondsToRead,comparisonSummary1(secondsToRead,:)])
     end
 end
-if ismember(usecam,2)
+if any(ismember(usecam,2))
     if all(comparisonSummary2(secondsToRead,:)==true) %test only the seconds tested
         display('******************************')
         display(['cam2: seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
