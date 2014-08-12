@@ -12,9 +12,9 @@ rawylim =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 
 
 %path = 'D:\2014-07-31cam1878\';
-path = '~/Z/cygdrive/d/2014-07-31cam1878/';
-
-cam1fn = '2014-07-31T19-51-CamSer1878.DMCdata';
+%path = '~/Z/cygdrive/d/2014-07-31cam1878/';
+path = '/media/aurora1/DriveImages/';
+cam1fn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.DMCdata';
 
 cam1fn = [path,cam1fn];
 
