@@ -1,7 +1,7 @@
 %RunledMatcher
 clear
 
-secondsToRead(:,1) = 1:10:70; % vector of seconds you want to read
+secondsToRead(:,1) = 1:5:20; % vector of seconds you want to read
 %secondsToRead(:,1) = 1200:40:1400;
 
 showLines = true; %optional
@@ -12,7 +12,7 @@ showImage = false; %optional, takes a lot longer to process
 showMeasBool = false;
 showMeasRaw = true;
 
-
+usecam = 1; %[1,2]; %cam numbers to use
 
 %path = 'D:\';
 %path = '~/Z/cygdrive/d/';
@@ -20,27 +20,24 @@ path = '~/Z/media/aurora1/DriveImages/';
 %path = '/media/aurora1/DriveImages/';
 
 %% camera 1
-fpgappmoffset = -100; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
+fpgappmoffset1 = -100; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
                % 0 means no correction
 cam1simoffset =  6;  %POSITIVE INTEGER % this one-time slide matches the random LED start to 
                     % the first observation -- should be constant for the rest of the file!
 clim1 = [1000 1200]; % for image, arbitrary, for easy to see contrast
 rawylim1 =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 cam1fn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.DMCdata';
-
-%% camera 2 (temporarily patched in as camera 1 due to prototype code)
-%fpgappmoffset = -1220; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
-               % 0 means no correction
-% cam1simoffset =  18; %POSITIVE INTEGER
-% clim1 = [1000 1250];
-% rawylim1 =  [1000,2500];
-% cam1fn = '2014-07-31cam1387/2014-07-31T19-51-CamSer1387.DMCdata';
-
 cam1fn = [path,cam1fn];
-%cam2fn = [path,cam2fn];
-
+%% camera 2 (temporarily patched in as camera 1 due to prototype code)
+fpgappmoffset2 = -1220; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
+           % 0 means no correction
+cam2simoffset =  18; %POSITIVE INTEGER
+clim2 = [1000 1250];
+rawylim2 =  [1000,2500];
+cam2fn = '2014-07-31cam1387/2014-07-31T19-51-CamSer1387.DMCdata';
+cam2fn = [path,cam2fn];
+%% octave/matlab setup
 addpath('../hist-utils') % wherever rawDMCreader.m lives
-%% octave setup
 global isoctave
 isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 if isoctave
@@ -53,7 +50,6 @@ nscam = 86400*fps; %arbitrary number of samples you want to simulate ( 86400 sec
 freqled = [1.5625,3.125, 6.25,12.5]; %[Hz] frequency of flashing
 NumLED = 1:2;
 
-
 nt = length(secondsToRead);
 if nt>50 && showLines
     warning('using more than about 40 figures with Matlab can get very slow and use all RAM and even crash.')
@@ -62,92 +58,32 @@ end
 
 %% simulate LEDs
 % tcam took a lot of RAM, OK to use if you need it though.
-[ledbool,~,isamp] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
-%% plot simulated camera
-% figure(10),clf(10)
-% nled = length(freqled);
-% 
-% for iled = 1:nled
-%     subplot(nled,1,iled)
-%     plot(tcam,ledbool(:,iled))
-%     xlabel('time [sec.]')
-%     ylabel('LED (boolean)')
-%     title(['Simulated ',num2str(freqled(iled)),'Hz LED, fs=',num2str(fps),'Hz,  number of samples: ',int2str(nscam)])
-% end
-%% load LED coordinates
-[path1,name1,ext1] = fileparts(cam1fn);
-
-ClickFile1 = [name1,'_Coord.h5'];
-
-display(['using file ',ClickFile1,' for LED pixel coordinates'])
-if ~isoctave %matlab
-    rc = transpose(h5read(ClickFile1,'/ledrowcol')); %tranpose b/c matlab 
-else %octave
-    rcl = load(ClickFile1,'-hdf5');
-    rc = transpose(rcl.ledrowcol);
+if ismember(usecam,1)
+    [ledbool1,~,isamp1] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset1); 
 end
-    
-row = rc(:,1);
-col = rc(:,2);
-
+if ismember(usecam,2)
+    [ledbool2,~,isamp2] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset2);
+end
 %% load real camera data
-
+tn = 1:fps; %sample instances
 try
 for isec = 1:nt
-    sec = secondsToRead(isec);
+    secn = secondsToRead(isec);
     tic
-    frameReq = ((sec-1)*fps + 1) : (sec*fps); %we'll grab these from disk to work with, these are the sample indices of this second 
-    jFrm = 0;
-    for iFrm = frameReq
-        jFrm = jFrm+1;
-        ImageData = readFrame(cam1fn,ext1,iFrm); %read current image from disk
+    frameReq = ((secn-1)*fps + 1) : (secn*fps); %we'll grab these from disk to work with, these are the sample indices of this second 
 
-        if showImage
-            figure(1)%#ok<*UNRCH>
-            imagesc(ImageData),colormap(gray)
-            set(gca,'ydir','normal','clim',clim1)
-            line(col,row,'color','r','marker','.','linestyle','none'); 
-            colorbar
-            
-%             figure(2) 
-%             imagesc(ImageData),colormap(gray)
-%             set(gca,'ydir','normal','clim',clim2)
-%             line(col,row,'color','r','marker','.','linestyle','none'); 
-%             colorbar
-        end
-        
-        jLED = 0;
-        for iLED = NumLED
-            jLED = jLED+1;
-            DataPoints(jFrm,jLED) = ImageData(row(iLED),col(iLED));  %pull out the data number for this LED for this frame
-       end
+    %load cam1 analysis
+    if ismember(usecam,1)
+        comparisonSummary1 = getPointsCam(frameReq,...
+               cam1fn,showImage,NumLED,cam1simoffset,ledbool1,fps,isamp1,...
+               secn,tn,showMeasBool,showMeasRaw,showLines,rawylim1,1);
     end
-   
-    
-    
-%% compare observed with sim
-    booldata = bsxfun(@minus,double(DataPoints), mean(DataPoints,1)) > 0; %convert to boolean (not 100% reliable)
-    simtind = frameReq+cam1simoffset;
-    simbool = ledbool(simtind,:);
-
-    tn = 1:fps; %sample instances
-    %for each LED, at the sample times isamp, does the measurement match simulation?
-    for jLED = 1:length(NumLED)
-       %implement offset
-       isampoffs{jLED} = isamp{jLED} - cam1simoffset; %#ok<*SAGROW> % minus shifts back like simbool
-       CompareBool = ismember(frameReq,isampoffs{jLED}); %these are the samples upon which we'll compare simulated and measured LED
-       comparedatabool = booldata(CompareBool,jLED);
-       comparesimbool = simbool(CompareBool,jLED);
-       tnisamp{jLED} = tn(CompareBool);
-       comparisonResult{jLED} = (comparedatabool == comparesimbool);
-       comparisonSummary(sec,jLED) = all(comparisonResult{jLED});
+    %load cam2 analysis
+    if ismember(usecam,2)
+        comparisonSummary2 = getPointsCam(frameReq,...
+               cam2fn,showImage,NumLED,cam2simoffset,ledbool2,fps,isamp2,...
+               secn,tn,showMeasBool,showMeasRaw,showLines,rawylim2,2);
     end
-
-    
-    if showLines
-        updatelineplot(100+sec,NumLED,fps,tn,sec,booldata,simbool,DataPoints,tnisamp,...
-                       rawylim1,cam1simoffset,showMeasBool,showMeasRaw)
-    end %if
 
 %----------- this method is bad, it messes up at transistions
 %   Nmatch(sec,:) = sum(booldata == simbool); %#ok<SAGROW>
@@ -156,21 +92,32 @@ for isec = 1:nt
 %     end
 %----------
     if showLines || showImage, pause(1), end
-        display(['read/processed frames ',int2str(frameReq(1)),' to ',int2str(frameReq(end)),' for sec. ',num2str(sec),' in ',num2str(toc,'%0.1f'),' seconds.'])
+    display(['read/processed frames ',int2str(frameReq(1)),' to ',int2str(frameReq(end)),' for sec. ',num2str(secn),' in ',num2str(toc,'%0.1f'),' seconds.'])
 end %for sec
 catch excp
-    fprintf('Stopped reading at sec=%f',sec)
+    fprintf('Stopped reading at sec=%f',secn)
     rethrow(excp)
 end %try
 %% summary
-if all(comparisonSummary(secondsToRead,:)==true) %test only the seconds tested
-    display('******************************')
-    display(['seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
-    display('******************************')
-else
-    display('LED match results: ')
-    display('  sec.  LED 1   LED2')
-    display([secondsToRead,comparisonSummary(secondsToRead,:)])
-
+if ismember(usecam,1)
+    if all(comparisonSummary1(secondsToRead,:)==true) %test only the seconds tested
+        display('******************************')
+        display(['cam1: seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
+        display('******************************')
+    else
+        display('cam1: LED match results: ')
+        display('  sec.  LED 1   LED2')
+        display([secondsToRead,comparisonSummary1(secondsToRead,:)])
+    end
 end
-
+if ismember(usecam,2)
+    if all(comparisonSummary2(secondsToRead,:)==true) %test only the seconds tested
+        display('******************************')
+        display(['cam2: seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
+        display('******************************')
+    else
+        display('cam2: LED match results: ')
+        display('  sec.  LED 1   LED2')
+        display([secondsToRead,comparisonSummary2(secondsToRead,:)])
+    end
+end

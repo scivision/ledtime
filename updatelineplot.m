@@ -11,8 +11,10 @@ for ipl = 1:length(NumLED)
     end
     if showMeasRaw
        ax = plotyy(tn,DataPoints(:,ipl),1:fps,simbool(:,ipl));
-       if ~isempty(rawylim), set(ax(1),'ylim',rawylim), end
-       set(ax(2),'ylim',[-0.01,1.01])
+       if ~isempty(rawylim)
+           set(ax(1),'ylim',rawylim)
+       end
+       set(ax(2),'ylim',[-0.01,1.01]) %boolean
        ylabel(ax(2),['sim. LED ',int2str(NumLED(ipl))])
     end
     %plot sample locations
