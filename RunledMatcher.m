@@ -1,28 +1,45 @@
 %RunledMatcher
 clear
 
-showLines = false; %optional
-showImage = false;
+secondsToRead(:,1) = 1:10:70; % vector of seconds you want to read
+%secondsToRead(:,1) = 1200:40:1400;
+
+showLines = true; %optional
+showImage = false; %optional, takes a lot longer to process
 
 %pick one or the other (or neither) but not both
 % showLines must also be true for these to work
 showMeasBool = false;
 showMeasRaw = true;
-rawylim =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 
 
-%path = 'D:\2014-07-31cam1878\';
-%path = '~/Z/cygdrive/d/2014-07-31cam1878/';
-path = '/media/aurora1/DriveImages/';
-cam1fn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.DMCdata';
 
-cam1fn = [path,cam1fn];
+%path = 'D:\';
+%path = '~/Z/cygdrive/d/';
+path = '~/Z/media/aurora1/DriveImages/';
+%path = '/media/aurora1/DriveImages/';
 
-
-addpath('../hist-utils') % wherever rawDMCreader.m lives
-
+%% camera 1
+fpgappmoffset = -100; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
+               % 0 means no correction
 cam1simoffset =  6;  %POSITIVE INTEGER % this one-time slide matches the random LED start to 
                     % the first observation -- should be constant for the rest of the file!
+clim1 = [1000 1200]; % for image, arbitrary, for easy to see contrast
+rawylim1 =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
+cam1fn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.DMCdata';
+
+%% camera 2 (temporarily patched in as camera 1 due to prototype code)
+%fpgappmoffset = -1220; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
+               % 0 means no correction
+% cam1simoffset =  18; %POSITIVE INTEGER
+% clim1 = [1000 1250];
+% rawylim1 =  [1000,2500];
+% cam1fn = '2014-07-31cam1387/2014-07-31T19-51-CamSer1387.DMCdata';
+
+cam1fn = [path,cam1fn];
+%cam2fn = [path,cam2fn];
+
+addpath('../hist-utils') % wherever rawDMCreader.m lives
 %% octave setup
 global isoctave
 isoctave = logical(exist('OCTAVE_VERSION','builtin'));
@@ -35,16 +52,17 @@ fps = 30;    %[Hz] must match your imaging frame rate  (30 fps == 30 Hz)
 nscam = 86400*fps; %arbitrary number of samples you want to simulate ( 86400 sec is 24 hours)
 freqled = [1.5625,3.125, 6.25,12.5]; %[Hz] frequency of flashing
 NumLED = 1:2;
-secondsToRead = 1:15; % vector of seconds you want to read
 
-fpgappmoffset = 0; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
-               % 0 means no correction
-               % Not sure if we need this, but here it is anyway.
-               % it would take many 10000's of samples for this FPGA crystal effect to
-               % be significant
-               
+
+nt = length(secondsToRead);
+if nt>50 && showLines
+    warning('using more than about 40 figures with Matlab can get very slow and use all RAM and even crash.')
+    display('** consider showLines=false or decreasing number of seconds read')
+end
+
 %% simulate LEDs
-[ledbool,tcam,isamp] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
+% tcam took a lot of RAM, OK to use if you need it though.
+[ledbool,~,isamp] = simleds(fps,nscam,freqled(NumLED),fpgappmoffset); 
 %% plot simulated camera
 % figure(10),clf(10)
 % nled = length(freqled);
@@ -73,24 +91,29 @@ row = rc(:,1);
 col = rc(:,2);
 
 %% load real camera data
-doflipud = true; %orients data in accord with your _Coord.h5 file
-dotranspose = true;
 
 try
-for sec = secondsToRead
+for isec = 1:nt
+    sec = secondsToRead(isec);
     tic
     frameReq = ((sec-1)*fps + 1) : (sec*fps); %we'll grab these from disk to work with, these are the sample indices of this second 
     jFrm = 0;
     for iFrm = frameReq
         jFrm = jFrm+1;
-        ImageData = readFrame(cam1fn,ext1,iFrm,doflipud,dotranspose); %read current image from disk
+        ImageData = readFrame(cam1fn,ext1,iFrm); %read current image from disk
 
         if showImage
-            figure(22)%#ok<*UNRCH> %,clf(22)
+            figure(1)%#ok<*UNRCH>
             imagesc(ImageData),colormap(gray)
-            set(gca,'ydir','normal','clim',[1000 1200])
+            set(gca,'ydir','normal','clim',clim1)
             line(col,row,'color','r','marker','.','linestyle','none'); 
             colorbar
+            
+%             figure(2) 
+%             imagesc(ImageData),colormap(gray)
+%             set(gca,'ydir','normal','clim',clim2)
+%             line(col,row,'color','r','marker','.','linestyle','none'); 
+%             colorbar
         end
         
         jLED = 0;
@@ -122,33 +145,8 @@ for sec = secondsToRead
 
     
     if showLines
-        figure(100+sec),clf(100+sec)
-        for ipl = 1:length(NumLED)
-            ax = subplot(length(NumLED),1,ipl);
-            if showMeasBool
-                line(tn,booldata(:,ipl),'color','b')
-                line(tn,simbool(:,ipl),'color','r')
-            end
-            if showMeasRaw
-               ax = plotyy(tn,DataPoints(:,ipl),1:fps,simbool(:,ipl));
-               if ~isempty(rawylim), set(ax(1),'ylim',rawylim), end
-               set(ax(2),'ylim',[-0.01,1.01])
-               ylabel(ax(2),['sim. LED ',int2str(NumLED(ipl))])
-            end
-            %plot sample locations
-            for ismp = 1:length(tnisamp{ipl})
-%                 ct = isampoffs{ipl}(ismp); % index of this second that sample was taken at
-                 ct = tnisamp{ipl}(ismp);
-                 line([ct,ct],[0,1],'color','r','parent',ax(2))
-            end
-            
-            
-            ylabel(ax(1),['meas. LED ',int2str(NumLED(ipl))])
-        end
-        xlabel(['sample index from t=',num2str(sec)])
-        annotation('textbox',[0.4,0.95,0.3,0.05],...
-                   'string',['ledOffset=',int2str(cam1simoffset)],...
-                   'HorizontalAlignment','center')
+        updatelineplot(100+sec,NumLED,fps,tn,sec,booldata,simbool,DataPoints,tnisamp,...
+                       rawylim1,cam1simoffset,showMeasBool,showMeasRaw)
     end %if
 
 %----------- this method is bad, it messes up at transistions
@@ -160,16 +158,19 @@ for sec = secondsToRead
     if showLines || showImage, pause(1), end
         display(['read/processed frames ',int2str(frameReq(1)),' to ',int2str(frameReq(end)),' for sec. ',num2str(sec),' in ',num2str(toc,'%0.1f'),' seconds.'])
 end %for sec
+catch excp
+    fprintf('Stopped reading at sec=%f',sec)
+    rethrow(excp)
 end %try
 %% summary
-if all(comparisonSummary==true)
+if all(comparisonSummary(secondsToRead,:)==true) %test only the seconds tested
     display('******************************')
     display(['seconds ',num2str(secondsToRead(1)),' to ',num2str(secondsToRead(end)),' matched: simulation and measurement for LEDs: ',int2str(NumLED)])
     display('******************************')
 else
     display('LED match results: ')
-    display('LED 1   LED2')
-    display(comparisonSummary)
+    display('  sec.  LED 1   LED2')
+    display([secondsToRead,comparisonSummary(secondsToRead,:)])
 
 end
 

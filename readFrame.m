@@ -1,6 +1,5 @@
-function frame = readFrame(fn,ext,frameInd,doflipud,dotranspose)
+function frame = readFrame(fn,ext,frameInd)
 
-if nargin<5, dotranspose = false; end
 
 global isoctave
 
@@ -27,13 +26,5 @@ switch lower(ext)
             frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd(1) frameInd(end)]});       
         end
 end %switch
-%% transpose, flip
-if dotranspose
-    frame = transpose(frame);
-end
-
-if doflipud
-    frame = flipud(frame);
-end
 
 end
