@@ -1,6 +1,6 @@
 function comparisonSummary = getPointsCam(...
             comparisonSummary,frameReq,camfn,showImage,NumLED,camsimoffset,ledbool,fps,isamp,secn,tn,...
-            showMeasBool,showMeasRaw,showLines,rawylim,camind)
+            showMeasBool,showMeasRaw,showLines,rawylim,clim,camind)
 
 global isoctave
 %% load LED coordinates
@@ -27,7 +27,7 @@ col = rc(:,2);
         if showImage
             figure(1)%#ok<*UNRCH>
             imagesc(ImageData),colormap(gray)
-            set(gca,'ydir','normal','clim',clim1)
+            set(gca,'ydir','normal','clim',clim)
             line(col,row,'color','r','marker','.','linestyle','none'); 
             colorbar
             

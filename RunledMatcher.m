@@ -1,11 +1,11 @@
 %RunledMatcher
 clear
 
-secondsToRead(:,1) = 10:300:1800; % vector of seconds you want to read
+secondsToRead(:,1) = 67; % vector of seconds you want to read
 %secondsToRead(:,1) = 1200:40:1400;
 
 showLines = true; %optional
-showImage = false; %optional, takes a lot longer to process
+showImage = true; %optional, takes a lot longer to process
 
 %pick one or the other (or neither) but not both
 % showLines must also be true for these to work
@@ -81,13 +81,13 @@ for isec = 1:nt
     if any(ismember(usecam,1))
         comparisonSummary1 = getPointsCam(comparisonSummary1,frameReq,...
                cam1fn,showImage,NumLED,cam1simoffset,ledbool1,fps,isamp1,...
-               secn,tn,showMeasBool,showMeasRaw,showLines,rawylim1,1);
+               secn,tn,showMeasBool,showMeasRaw,showLines,rawylim1,clim1,1);
     end
     %load cam2 analysis
     if any(ismember(usecam,2))
         comparisonSummary2 = getPointsCam(comparisonSummary2,frameReq,...
                cam2fn,showImage,NumLED,cam2simoffset,ledbool2,fps,isamp2,...
-               secn,tn,showMeasBool,showMeasRaw,showLines,rawylim2,2);
+               secn,tn,showMeasBool,showMeasRaw,showLines,rawylim2,clim2,2);
     end
 
 %----------- this method is bad, it messes up at transistions
