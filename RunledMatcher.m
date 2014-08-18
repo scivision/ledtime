@@ -1,7 +1,7 @@
 %RunledMatcher
 clear
 
-secondsToRead(:,1) = 1:1:20; % vector of seconds you want to read
+secondsToRead(:,1) = 10:300:1800; % vector of seconds you want to read
 %secondsToRead(:,1) = 1200:40:1400;
 
 showLines = true; %optional
@@ -20,16 +20,19 @@ path = '~/Z/media/aurora1/DriveImages/';
 %path = '/media/aurora1/DriveImages/';
 
 %% camera 1
-fpgappmoffset1 = -100; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
+fpgappmoffset1 = -1050; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
                % 0 means no correction
+               % increasingly positive number slides "to the left" earlier in time
+               % increasingly negative number slides "to the right" later in time
 cam1simoffset =  6;  %POSITIVE INTEGER % this one-time slide matches the random LED start to 
                     % the first observation -- should be constant for the rest of the file!
+                    % a bigger number slides it "to the left" earlier in time
 clim1 = [1000 1200]; % for image, arbitrary, for easy to see contrast
 rawylim1 =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 cam1fn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.DMCdata';
 cam1fn = [path,cam1fn];
 %% camera 2 
-fpgappmoffset2 = -1220; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
+fpgappmoffset2 = -1050; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
            % 0 means no correction
 cam2simoffset =  18; %POSITIVE INTEGER
 clim2 = [1000 1250];
