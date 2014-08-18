@@ -7,13 +7,15 @@
 % fire is the camera "answering back" logical 1
 clear,clc
 
-path = '~/Z/cygdrive/d/2014-07-31cam1387/';
-firefn = '2014-07-31T19-51-CamSer1387.fire';    %'~/U/collaborate/HST/three.fire';
+path = '~/Z/media/aurora1/DriveImages/';
+firefn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.fire';    %'~/U/collaborate/HST/three.fire';
+
+secondsToRead = 633:635;
 
 firefn = [path,firefn];
 
 Nbool = 3; %how many data lines were read
-[firedata, fs,t] = firereader(firefn,Nbool);
+[firedata, fs,t] = firereader(firefn,Nbool,secondsToRead);
 
 nt = size(firedata,1);
 %% plot all together
