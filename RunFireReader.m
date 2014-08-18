@@ -10,7 +10,7 @@ clear,clc
 path = '~/Z/media/aurora1/DriveImages/';
 firefn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.fire';    %'~/U/collaborate/HST/three.fire';
 
-secondsToRead = 633:635;
+secondsToRead = 67;
 
 firefn = [path,firefn];
 
@@ -27,7 +27,7 @@ plot(t,firedata(:,1),'b','displayname','fire') %plot last so they'll be on top!
 
 xlabel('time (sec)')
 ylabel('fire boolean')
-title([int2str(fs),' samples/sec fire'])
+title({[int2str(fs),' samples/sec: '],firefn})
 legend('show')
 %% plot separately, on same time axis
 figure(2),clf(2)
@@ -35,15 +35,18 @@ plot(t, firedata(:,2))
 %area(uint8(firedata(:,2)))
 ylabel('1PPS')
 xlabel('time (sec)')
+title({'Pulse per second:  ',firefn})
 
 figure(3),clf(3)
 plot(t, firedata(:,3))
 %area(uint8(firedata(:,3)))
 ylabel('ExtTrig')
 xlabel('time (sec)')
+title({'External Trigger:  ',firefn})
 
 figure(4),clf(4)
 plot(t, firedata(:,1))
 %area(uint8(firedata(:,1)))
 ylabel('fire')
 xlabel('time (sec)')
+title({'Fire:   ',firefn})
