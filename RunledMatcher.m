@@ -28,7 +28,7 @@ clim1 = [1000 1200]; % for image, arbitrary, for easy to see contrast
 rawylim1 =  [1000,1500]; %arbitrary, so huge spikes don't mess up graph
 cam1fn = '2014-07-31cam1878/2014-07-31T19-51-CamSer1878.DMCdata';
 cam1fn = [path,cam1fn];
-%% camera 2 (temporarily patched in as camera 1 due to prototype code)
+%% camera 2 
 fpgappmoffset2 = -1220; % This is to account for imperfect Digilent FPGA board crystal (parts per million), 
            % 0 means no correction
 cam2simoffset =  18; %POSITIVE INTEGER
