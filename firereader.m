@@ -1,4 +1,4 @@
-function [booldata,fs,t] = firereader(datfn,Nbool,secondsToRead)
+function [booldata,fs,t] = firereader(datfn,Nbool,secondsToRead,sampleRate)
 % Michael Hirsch July 2014
 % reads "fire.dat" 8-bit binary files
 
@@ -10,7 +10,11 @@ end
 if ~exist(datfn,'file'), error([datfn,' not found']), end
 
 fid = fopen(datfn);
-fs = fread(fid,1,'double=>double',0,'l'); % get sample rate from "header" of file
+if ~isempty(sampleRate)
+    fs = sampleRate;
+else %use sample rate of file (normally do this)
+    fs = fread(fid,1,'double=>double',0,'l'); % get sample rate from "header" of file
+end
 if fs<1 || fs>1e9
     error('we appear to not be reading fs correctly, please check .fire file first 64 bits with hex editor')
 end
