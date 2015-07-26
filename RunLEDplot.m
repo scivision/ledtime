@@ -2,34 +2,31 @@
 % user clicks on LEDs, output used in RunledMatacher
 % Michael Hirsch
 % Jan 2012, as modified July 2014
-
-firstrun = true;
+function RunLEDplot(varargin)
 addpath('../histutils') % This is where rawDMCreader.m lives
 %% user parameters
-iLED = 1:4;  %choosing a four led
-%iLED = 1:8; % chooses all 8 LEDs
-
-frameReq = 1:200; %choose frame indices to read
-
+p = inputParser();
+addOptional(p,'bigfn','../../data/2014-07-30/2014-07-30T21-36-CamSer1387.DMCdata')
 %fn1 = '150fpsX1387.fits';
 %fn1 = '/media/HST2014image/2014-07-25/2014-07-25T00-35-CamSer1878.DMCdata';
-fn1 = '../../data/2014-07-30/2014-07-30T21-36-CamSer1387.DMCdata';
+addParamValue(p,'iled',1:4) %#ok<*NVREPL> %choosing first four led
+addParamValue(p,'framereq', 1:200) %choose frame indices to read
+addParamValue(p,'showprogress',false)
+p.parse(varargin{:})
+U = p.Results;
 %% load first file
-if ~exist('DataPoints','var') 
-    [Nf,NumLED,pCol,pRow,t,hMain] = writeclicks(fn1,iLED,frameReq);
-
-    %plot first file
-    [axs,DataPoints,firstrun]=FinalPlot(fn1,frameReq,NumLED,pCol,pRow,t,hMain,[],1,firstrun);
-else
-    display('reusing existing DataPoints values')
-end
-
+[NumLED,prowcol,t,hMain] = writeclicks(U.bigfn, U.iled, U.framereq);
+%plot first file
+DataPoints=FinalPlot(U.bigfn,U.framereq,NumLED,prowcol,t,hMain,1,U.showprogress);
 % work with data points
 booldata = bsxfun(@minus,DataPoints, mean(DataPoints,1)) > 0;
-
 % turn into synthetic pulses to count?
 leadingedge = diff(booldata)>0;
+%%
+doplot(t,booldata,leadingedge,NumLED)
+end %function
 
+function doplot(t,booldata,leadingedge,iLED)
 figure(3),clf(3)
 if length(iLED) == 1
     plot(t,booldata)
@@ -43,16 +40,17 @@ else
     else
         sprc = 3;
     end
-        for isp = iLED
-   
-         subplot(sprc,sprc,isp)
-           plot(t,booldata(:,isp))
-        set(gca,'ylim',[-0.05,1.05],'xlim',[t(1),t(end)])
-         xlabel('time')
-        ylabel('boolean')
-         title(['LED #',int2str(iLED(isp))])
-        end
     
+    for isp = iLED
+
+         subplot(sprc,sprc,isp)
+         plot(t,booldata(:,isp))
+
+         set(gca,'ylim',[-0.05,1.05],'xlim',[t(1),t(end)])
+         xlabel('time')
+         ylabel('boolean')
+         title(['LED #',int2str(iLED(isp))])
+    end
 end
 
 figure(4),clf(4)
@@ -61,11 +59,5 @@ set(gca,'ylim',[-0.05,1.05])
 xlabel('Time')
 ylabel('leading edge')
 title(['LED #',int2str(iLED)])
-%% we're only using one camera (for now!)
-%load second camera
-%[Nf,NumLED,pCol,pRow,hMain] = TiffProto3(fn2,iLED);
 
-%plot second camera
-%[axs,DataPoints]=FinalPlot(fn2,Nf,NumLED,pCol,pRow,hMain,t,axs,2);
-
-%load third camera
+end %function
