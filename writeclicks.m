@@ -1,15 +1,12 @@
 % Image read test
 % Michael Hirsch
 % Jan 2012
-function [Nf,iLED,pCol,pRow,t,hMain] = TiffProto3(fn,iLED,frameReq,doflipud)
+function [Nf,iLED,pCol,pRow,t,hMain] = writeclicks(fn,iLED,frameReq)
 
 enableClicking = true;
 
-
 if ~exist(fn,'file'),error([fn,' does not exist']), end
 
-global isoctave 
-isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 [~,name,ext] = fileparts(fn);
 ProtoFrame = 2; %first non-blank frame is 2
 
@@ -28,7 +25,7 @@ switch lower(ext)
         Nf = pinf.PrimaryData.Keywords{frind,2};
         if any(frameReq>Nf), error('frame request exceeds number of available frames'), end
 end %switch
-fps = 1/kineticSec; %#ok<NASGU> %FIXME is this actually true? (SDK manual says it is)
+fps = 1/kineticSec; % (SDK manual says it is)
 t = frameReq*kineticSec;
 %% show mouse click results
 % first see if we've already saved mouse clicks--if you want to pick new
@@ -37,9 +34,9 @@ t = frameReq*kineticSec;
 
 ClickFile = [name,'_Coord.h5'];
 
-ProtoImg = readFrame(fn,ext,ProtoFrame,doflipud);
+ProtoImg = readFrame(fn,ProtoFrame);
 
-figure(1)
+figure(1),clf(1)
 set(1,'Name','LED Viewer','pos',[30,30,560,420])
 hMain.img = imagesc(ProtoImg);
 colormap(bone)
@@ -75,9 +72,9 @@ htp = title('Choose LED');
 for i = iLED
     set(htp,'String',['Please click on LED #',num2str(i),' of ',num2str(length(iLED))])
     [pCol(i),pRow(i)] = ginput(1); 
-    pRow(i) = round(pRow(i));  %#ok<*AGROW>
-    pCol(i) = round(pCol(i));
-    display(['You chose Column #',num2str(pCol(i)),', Row #',num2str(pRow(i))])
+    pRow(i) = int16(pRow(i));  %#ok<*AGROW>
+    pCol(i) = int16(pCol(i));
+    display(['You chose Column #',int2str(pCol(i)),', Row #',int2str(pRow(i))])
 end
 
 try close(hPm), end
@@ -90,9 +87,9 @@ display(['saving ',ClickFile])
 if isoctave
     save(ClickFile,'pCol','pRow','-hdf5')
 else
-    h5create(ClickFile,'/pCol',max(iLED),'datatype','int32')
+    h5create(ClickFile,'/pCol',max(iLED),'datatype','int16')
     h5write(ClickFile,'/pCol',pCol)
-    h5create(ClickFile,'/pRow',max(iLED),'datatype','int32')
+    h5create(ClickFile,'/pRow',max(iLED),'datatype','int16')
     h5write(ClickFile,'/pRow',pRow)
 end
 

@@ -2,11 +2,10 @@ function comparisonSummary = getPointsCam(...
             comparisonSummary,frameReq,camfn,showImage,NumLED,camsimoffset,ledbool,fps,isamp,secn,tn,...
             showMeasBool,showMeasRaw,showLines,rawylim,clim,camind)
 
-global isoctave
 %% load LED coordinates
-[path,name,ext] = fileparts(camfn);
+[datadir,name] = fileparts(camfn);
 
-ClickFile = [name,'_Coord.h5'];
+ClickFile = [datadir,'/',name,'_Coord.h5'];
 
 %display(['using file ',ClickFile,' for LED pixel coordinates'])
 if ~isoctave %matlab
@@ -19,35 +18,36 @@ end
 row = rc(:,1);
 col = rc(:,2);
 %% load data
-    jFrm = 0;
-    for iFrm = frameReq
-        jFrm = jFrm+1;
-        ImageData = readFrame(camfn,ext,iFrm); %read current image from disk
+jFrm = 0; DataPoints=[];
+for iFrm = frameReq
+    jFrm = jFrm+1;
 
-        if showImage
-            figure(1)%#ok<*UNRCH>
-            imagesc(ImageData),colormap(gray)
-            set(gca,'ydir','normal','clim',clim)
-            line(col,row,'color','r','marker','.','linestyle','none'); 
-            colorbar
-            
+    ImageData = readFrame(camfn,iFrm); %read current image from disk
+    if isempty(ImageData),break,end
+
+    if showImage
+        figure(1)%#ok<*UNRCH>
+        imagesc(ImageData),colormap(gray)
+        set(gca,'ydir','normal','clim',clim)
+        line(col,row,'color','r','marker','.','linestyle','none'); 
+        colorbar
+
 %             figure(2) 
 %             imagesc(ImageData),colormap(gray)
 %             set(gca,'ydir','normal','clim',clim2)
 %             line(col,row,'color','r','marker','.','linestyle','none'); 
 %             colorbar
-        end
-        
-        jLED = 0;
-        for iLED = NumLED
-            jLED = jLED+1;
-            DataPoints(jFrm,jLED) = ImageData(row(iLED),col(iLED));  %pull out the data number for this LED for this frame
-       end
-    end %for frameReq
-   
-    
-    
+    end
+
+    jLED = 0;
+    for iLED = NumLED
+        jLED = jLED+1;
+        DataPoints(jFrm,jLED) = ImageData(row(iLED),col(iLED));  %pull out the data number for this LED for this frame
+   end
+end %for frameReq
 %% compare observed with sim
+    if isempty(DataPoints),return,end
+    
     booldata = bsxfun(@minus,double(DataPoints), mean(DataPoints,1)) > 0; %convert to boolean (not 100% reliable)
     simtind = frameReq+camsimoffset;
     simbool = ledbool(simtind,:);

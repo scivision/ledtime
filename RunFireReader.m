@@ -5,20 +5,31 @@
 % 1PPS is from the GPS unit, hopefully within 250ns of true time anywhere on Earth
 % ExtTrig is what the X-series PCIe-6321 NI-STC3 ASIC derives from 1PPS
 % fire is the camera "answering back" logical 1
-clear,clc
-
-path = '~/conference/agu2014/'; %'~/Z/media/aurora1/DriveImages/';
-firefn = 'fire.dat'; %'2014-07-31cam1878/2014-07-31T19-51-CamSer1878.fire';    %'~/U/collaborate/HST/three.fire';
+function RunFireReader()
+%%
+tstart = datenum(2014,7,31,19,51,0);
+fps = 30;
+datadir = '../../data/'; %'/media/DriveImages/';
+firefn = 'three.fire'; %'2014-07-31cam1878/2014-07-31T19-51-CamSer1878.fire';    %'~/U/collaborate/HST/three.fire';
 
 secondsToRead = 1:8; %TODO this only allows starting from t=0, you can't skip ahead
-sampleRate=1000; %[Hz] overrides that of file (otherwise make =[])
+sampleRate= []; %1000; %[Hz] overrides that of file (otherwise make =[])
+%%
+firefn = [datadir,firefn];
 
-firefn = [path,firefn];
-
-Nbool = 1;%3; %how many data lines were read
+Nbool = 3; %how many data lines were read
 [firedata, fs,t] = firereader(firefn,Nbool,secondsToRead,sampleRate);
 
-nt = size(firedata,1);
+%what time where the images taken?
+ifire = find(firedata(:,1)>0);
+tfire = tstart + (ifire-1)*1./fps./86400; %UTC time each frame was taken
+%%
+doplots(firedata,fs,t,Nbool,firefn)
+
+end %function
+
+function doplots(firedata,fs,t,Nbool,firefn)
+
 %% plot all together
 figure(1),clf(1)
 hold('on')
@@ -53,13 +64,4 @@ if Nbool>2
     title({'External Trigger:  ',firefn})
 end
 
-
-figure(4),clf(4)
-plot(t, firedata(:,1),'linewidth',2)
-%area(uint8(firedata(:,1)))
-ylabel('fire boolean','fontsize',22)
-xlabel('time (sec)','fontsize',22)
-%title({'Fire:   ',firefn})
-title('Camera timing feedback hardware measurements','fontsize',24)
-set(gca,'fontsize',20)
-axis('tight')
+end %function

@@ -1,15 +1,13 @@
-function [axs,DataPoints] = FinalPlot(fn,frameReq,NumLED,pCol,pRow,t,hMain,axs,iCam,doflipud) 
+function [axs,DataPoints,firstrun] = FinalPlot(fn,frameReq,NumLED,pCol,pRow,t,hMain,axs,iCam,firstrun) 
 
 showProgress = true;
 
-global firstrun
 if firstrun
     axs = makeplots(NumLED,pCol,pRow);
     firstrun = false;
 end
 lc = ['b','r','m'];
 
-[~,~,ext] = fileparts(fn);
 set(2,'name',fn)
 
 nFrame = length(frameReq) %#ok<NOPRT>
@@ -18,7 +16,7 @@ DataPoints = NaN(nFrame,length(NumLED)); %pre-allocate
 
 jFrm = 1;
 for iFrm = frameReq
-    ImageData = readFrame(fn,ext,iFrm,doflipud); %read current image from disk
+    ImageData = readFrame(fn,iFrm); %read current image from disk
     if showProgress  
      set(hMain.img,'cData',ImageData) %#ok<*UNRCH> %update picture
     end

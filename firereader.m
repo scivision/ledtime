@@ -2,17 +2,20 @@ function [booldata,fs,t] = firereader(datfn,Nbool,secondsToRead,sampleRate)
 % Michael Hirsch July 2014
 % reads "fire.dat" 8-bit binary files
 
-isoctave = logical(exist('OCTAVE_VERSION','builtin'));
 if isoctave
-pkg load communications
+    pkg('load','communications')
 end
-
-if ~exist(datfn,'file'), error([datfn,' not found']), end
+%%
+if ~exist(datfn,'file')
+    error([datfn,' not found'])
+end
 
 fid = fopen(datfn);
 if ~isempty(sampleRate)
+    nheadbytes=0;
     fs = sampleRate;
 else %use sample rate of file (normally do this)
+    nheadbytes=8;
     fs = fread(fid,1,'double=>double',0,'l'); % get sample rate from "header" of file
 end
 if fs<1 || fs>1e9
@@ -20,18 +23,23 @@ if fs<1 || fs>1e9
 end
 % a guess at preallocation
 %booldata = false(20e6,Nbool); 
-
+%%
 nt = length(secondsToRead);
-bytesPerSecond = fs*1;
+bytesPerSecond = fs*1; %right now we only use the first 3 bits of the byte, didn't need more than one byte
 try 
 
-%while ~feof(fid) 
+booldata = false(nt*fs,Nbool);
 for isec = 1:nt
-    i = secondsToRead(isec); % i is the second you're reading
-	cind = ((i-1)*fs + 1): (i*fs);
     
-    fseek(fid,(i-1)*bytesPerSecond,'bof');
-    currdata = fread(fid,fs,'uint8=>uint8',0,'l'); 
+    if feof(fid), break,end
+    
+    i = secondsToRead(isec); % i is the second you're reading
+	  cind = ((i-1)*fs + 1): (i*fs);
+    
+    fseek(fid,(i-1)*bytesPerSecond + nheadbytes,'bof');
+    % =>double for Octave Comms v.1.2.1 compat (bug in pkg won't accept uint8)
+    % doesn't take any longer in Octave or Matlab
+    currdata = fread(fid,bytesPerSecond,'uint8=>double',0,'l'); 
     
 %     if any(currdata>2^Nbool)
 %         error('We appear to not be reading your boolean data correctly')
@@ -45,11 +53,8 @@ for isec = 1:nt
     end
     
     currbool = de2bi(currdata,Nbool,2,'left-msb');
-    if isoctave %FIXME till comms toolbox patched
-        booldata(cind,1:Nbool) = logical(currbool); %#ok<*AGROW>
-    else
-        booldata(cind,1:Nbool) = currbool;
-    end
+    booldata(cind,1:Nbool) = currbool;
+    
     %firedata(cind,1) = currdata;
 end
 
