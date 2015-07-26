@@ -6,7 +6,7 @@ switch lower(ext)
 	case {'.tif','.tiff'}
         frame = imread(fn,'tif','Index',frameInd);
     case '.dmcdata'
-        [frame, rawFrameInd] = rawDMCreader(fn,'framereq',frameInd);
+        frame = rawDMCreader(fn,'framereq',frameInd);
 	case '.fits'
         if isoctave
             ffn = [fn,'[*,*,',int2str(frameInd(1)),':',int2str(frameInd(end)),']'];
