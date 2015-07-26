@@ -1,16 +1,12 @@
-function frame = readFrame(fn,ext,frameInd)
+function frame = readFrame(fn,frameInd)
 
-
-global isoctave
+[~,~,ext] = fileparts(fn);
 
 switch lower(ext)
-	case {'.tif','.tiff'}, frame = imread(fn,'tif','Index',frameInd);
-    case '.dmcdata' %TODO use rawDMCreader function here 
-        xPix = 512; yPix = 512; %FIXME assign programatically
-        xBin = 1;   yBin = 1;
-        [frame, rawFrameInd] = rawDMCreader(fn,xPix,yPix,xBin,yBin,frameInd);
-        
-
+	case {'.tif','.tiff'}
+        frame = imread(fn,'tif','Index',frameInd);
+    case '.dmcdata'
+        [frame, rawFrameInd] = rawDMCreader(fn,'framereq',frameInd);
 	case '.fits'
         if isoctave
             ffn = [fn,'[*,*,',int2str(frameInd(1)),':',int2str(frameInd(end)),']'];
@@ -23,7 +19,7 @@ switch lower(ext)
         else
             pinf = fitsinfo(fn);
             ps = pinf.PrimaryData.Size;
-            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd(1) frameInd(end)]});       
+            frame = fitsread(fn,'primary','PixelRegion',{[1 ps(1)],[1 ps(2)],[frameInd(1) frameInd(end)]});
         end
 end %switch
 

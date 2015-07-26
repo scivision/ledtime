@@ -1,6 +1,6 @@
 % example of using simleds
 
-clear
+function Runsimleds()
 
 dofire = false; %true to generate simulated fire/pps/trig waveforms
 %% camera imaging
@@ -25,6 +25,11 @@ if dofire
     [firebool,tfire] = simfire(fs,ns,fps,asicppmoffset,dofire);
 end
 %% plot camera
+doplot(ledbool,tcam,isamp,NumLED,freqled,fps,nscam,dofire)
+end %function
+
+function doplot(ledbool,tcam,isamp,NumLED,freqled,fps,nscam,dofire)
+
 figure(10),clf(10)
 
 Nled = length(NumLED);
@@ -56,3 +61,5 @@ if dofire
     legend('1PPS','ExtTrig','Fire')
     title('simulated fire/trig/pps logical lines')
 end
+
+end %function

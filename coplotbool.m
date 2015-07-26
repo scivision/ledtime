@@ -1,9 +1,10 @@
 function coplotbool()
-% Michael Hirsch, July 2014
-% plots boolean LED data of cameras together in subplots per LED
+%% plots boolean LED data of cameras together in subplots per LED
 %
 % note, instead of loading the data from disk, you can use this function with
 % the RunLED... main function
+%
+% Michael Hirsch, July 2014
 
 fn1 = 'booldata1.mat';
 fn2 = 'booldata2.mat';
@@ -24,7 +25,7 @@ Ncam = length(bd);
 % we "time shift" by throwing away first data elements from camera you want to
 % shift "back" in time!
 for icam = 1:Ncam
-   bd{icam} = bd{icam}(camshift(icam)+1:end,:);  %#ok<AGROW> %sigh, one-indexing requires +1 
+   bd{icam} = bd{icam}(camshift(icam)+1:end,:);  %sigh, one-indexing requires +1 
 end
 %% do plotting
 figure(1),clf(1)
