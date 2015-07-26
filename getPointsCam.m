@@ -9,15 +9,15 @@ ClickFile = [datadir,'/',name,'_Coord.h5'];
 
 %display(['using file ',ClickFile,' for LED pixel coordinates'])
 if ~isoctave %matlab
-    rc = transpose(h5read(ClickFile,'/ledrowcol')); %tranpose b/c matlab 
+    rc = transpose(h5read(ClickFile,'/prowcol')); %tranpose b/c matlab 
 else %octave
     rcl = load(ClickFile,'-hdf5');
-    rc = transpose(rcl.ledrowcol);
+    rc = transpose(rcl.prowcol);
 end
     
 row = rc(:,1);
 col = rc(:,2);
-%% load data
+%% load IMAGE data
 jFrm = 0; DataPoints=[];
 for iFrm = frameReq
     jFrm = jFrm+1;
