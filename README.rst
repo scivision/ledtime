@@ -18,8 +18,12 @@ and record this as a ``.fire`` file
 
 Testing Programs
 -----------------
-1. ``RunLEDplot``: click on LED coordinates, which are saved to _Coord.h5 files. Plots made to verify clicks (should see square waves with distinct frequencies matching LEDs
-2. ``RunledMatcher``: given video input, makes plot of simulated LEDs against 1-D pixel vs time brightness. Sim should match video! does NOT use .fire measurements
+============== =============
+program        description
+============== =============
+RunLEDplot      click on LED coordinates, which are saved to _Coord.h5 files. Plots made to verify clicks (should see square waves with distinct frequencies matching LEDs
+RunledMatcher   given video input, makes plot of simulated LEDs against 1-D pixel vs time brightness. Sim should match video! does NOT use .fire measurements
+============== =============
 
 Utilities
 ---------
