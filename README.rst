@@ -36,5 +36,9 @@ RunFireReader  read and plot .fire file recorded from real camera **outputs time
 
 TODO
 ----
-* Upgrade RunledMatcher to use the computed time from RunFireRader functions -- this automatically
+======================= =================
+task                     description
+======================= =================
+update RunledMatcher      to use the computed time from RunFireRader functions -- this automatically
 implements correction from RunFireReader
+======================= =================
