@@ -23,8 +23,12 @@ Testing Programs
 
 Utilities
 ---------
-``Runsimleds``: test run of LED simulated square wave (that are used in RunledMatcher)
-``RunFireReader``: read and plot .fire file recorded from real camera **outputs time of exposures corrected for dropped frames**
+=========== =============
+program     description
+=========== =============
+Runsimleds   test run of LED simulated square wave (that are used in RunledMatcher)
+RunFireReader read and plot .fire file recorded from real camera **outputs time of exposures corrected for dropped frames**
+=========== =============
 
 TODO
 ----
