@@ -40,6 +40,5 @@ TODO
 ======================= =================
 task                    description
 ======================= =================
-update RunledMatcher      to use the computed time from RunFireRader functions -- this automatically
-implements correction from RunFireReader
+update RunledMatcher      to use the computed time from RunFireRader functions automatically implements correction from RunFireReader
 ======================= =================
