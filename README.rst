@@ -18,7 +18,8 @@ and record this as a ``.fire`` file
 
 Software requirements
 ---------------------
-Matlab R2014b+, Octave 4.0+ with the `fits package <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
+Octave 4.0+ with the `fits package <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
+or Matlab
 
 Testing Programs
 -----------------
@@ -37,6 +38,14 @@ program        description
 Runsimleds     test run of LED simulated square wave (that are used in RunledMatcher)
 RunFireReader  read and plot .fire file recorded from real camera **outputs time of exposures corrected for dropped frames**
 ============== =============
+
+Examples
+--------
+Read and plot a .fire file for manual examination of missed frames, and estimate of absolute UTC time, where your system sent ``pps`` pulses per second to the camera::
+
+    RunFireReader('c:/data/mytest.fire',pps)
+
+    
 
 TODO
 ----
