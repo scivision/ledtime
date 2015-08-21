@@ -18,7 +18,7 @@ and record this as a ``.fire`` file
 
 Software requirements
 ---------------------
-Octave 4.0+ with ``octave-fits`` and ``octave-communications`` packages. If you're using Octave from Cygwin see `how to install octave-fits package in Cygwin <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
+`Octave 4.0+ <https://www.gnu.org/software/octave/>`_ with ``octave-fits`` and ``octave-communications`` packages. If you're using Octave from Cygwin see `how to install octave-fits package in Cygwin <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
 
 or you can use Matlab instead of Octave.
 
