@@ -8,8 +8,8 @@
 function RunFireReader(varargin)
 %%
 p = inputParser();
-addOptional(p,'bigfn','../../data/2014-07-30/2014-07-30T21-36-CamSer1387.DMCdata')
-addOptional(p,'tstart',datenum(2014,7,31,19,51,0)) %TODO get from NMEA
+addRequired(p,'bigfn')
+addOptional(p,'tstart',datenum(2015,8,1,0,0,0)) %TODO get from NMEA
 addParamValue(p,'secondstoread',1:8) %#ok<*NVREPL> %TODO this only allows starting from t=0, you can't skip ahead
 addParamValue(p,'fps',30) %TODO read from file
 p.parse(varargin{:})
@@ -17,18 +17,13 @@ U = p.Results;
 
 [datadir,name,ext] = fileparts(U.bigfn);
 firefn = [datadir,'/',name,'.fire'];
-%'three.fire'; %'2014-07-31cam1878/2014-07-31T19-51-CamSer1878.fire';    %'~/U/collaborate/HST/three.fire';
-
-%sampleRate= []; %1000; %[Hz] overrides that of file (otherwise make =[])
 %%
-firefn = [datadir,firefn];
-
 Nbool = 3; %how many data lines were read
-[firedata, fs,t] = firereader(firefn,Nbool,secondsToRead,sampleRate);
+[firedata, fs,t] = firereader(firefn,Nbool,U.secondstoread);
 
 %what time where the images taken?
 ifire = find(firedata(:,1)>0);
-tfire = tstart + (ifire-1)*1./fps./86400; %UTC time each frame was taken
+tfire = U.tstart + (ifire-1)*1./U.fps./86400; %UTC time each frame was taken
 %%
 doplots(firedata,fs,t,Nbool,firefn)
 
