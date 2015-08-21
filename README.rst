@@ -45,8 +45,8 @@ Read and plot a .fire file for manual examination of missed frames, and estimate
 
     RunFireReader('c:/data/mytest.fire',pps)
 
-    .. image:: examples/fail_205fps.png
-       :alt: Example of excessive fps, camera not keeping update
+.. image:: examples/fail_205fps.png
+   :alt: Example of excessive fps, camera not keeping update
 
 In this example, the camera could not keep up with the requested frame rate as we do not see a 1:1 correspondence between
 ``Ext Trig`` and ``Fire``.  The width of the pulses don't matter here, it's the fact that some ``Ext Trig`` pulses do not have
