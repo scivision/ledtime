@@ -18,8 +18,9 @@ and record this as a ``.fire`` file
 
 Software requirements
 ---------------------
-Octave 4.0+ with the `fits package <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
-or Matlab
+Octave 4.0+ with the octave-fits package. If you're using Octave from Cygwin see `how to install octave-fits package in Cygwin <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
+
+or you can Matlab instead of Octave.
 
 Testing Programs
 -----------------
@@ -48,6 +49,8 @@ Read and plot a .fire file for manual examination of missed frames, and estimate
 .. image:: examples/fail_205fps.png
    :alt: Example of excessive fps, camera not keeping up
 
+Note, because of the extreme zoom-in, you don't see the on-off behavior of the relatively long 1PPS from the Jackson Labs Fury GPSDO.
+   
 In the plot above, the camera could not keep up with the requested frame rate as we do not see a 1:1 correspondence between
 ``Ext Trig`` and ``Fire``.  The width of the pulses don't matter here, it's the fact that some ``Ext Trig`` pulses do not have
 corresponding ``Fire`` pulses, meaning the camera didn't take a picture without a ``Fire`` pulse.
