@@ -2,7 +2,7 @@ function [booldata,fs,t] = firereader(datfn,Nbool,secondsToRead)
 % Michael Hirsch July 2014
 % reads "fire.dat" 8-bit binary files
 
-if isoctave
+try % octave
     pkg('load','communications')
 end
 %%
@@ -18,8 +18,6 @@ fs = fread(fid,1,'double=>double',0,'l'); % get sample rate from "header" of fil
 if fs<1 || fs>1e9
     error('we appear to not be reading fs correctly, please check .fire file first 64 bits with hex editor')
 end
-% a guess at preallocation
-%booldata = false(20e6,Nbool); 
 %%
 nt = length(secondsToRead);
 bytesPerSecond = fs*1; %right now we only use the first 3 bits of the byte, didn't need more than one byte
@@ -56,8 +54,8 @@ for isec = 1:nt
 end
 
 catch excp
-	display(i)
-	display(size(currdata))
+	display(['index: ',int2str(i)])
+	display(['currdata shape: ',int2str(size(currdata))])
 	rethrow(excp)
 end
 
@@ -69,6 +67,6 @@ booldata(1:((secondsToRead(1)-1)*fs),:) = [];
 
 fclose(fid);
 %%
-if nargout>2, t(:,1) = (0:length(booldata)-1)/fs + secondsToRead(1);
-
+if nargout>2
+    t(:,1) = (0:length(booldata)-1)/fs + secondsToRead(1)-1;
 end
