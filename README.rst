@@ -16,6 +16,10 @@ Additionally, the cameras should have a "fire" output which is a hardware output
 telling the instant when the exposure started. In our system we pack this into a byte
 and record this as a ``.fire`` file
 
+Software requirements
+---------------------
+Matlab R2014b+, Octave 4.0+ with the `fits package <https://scivision.co/using-fitsio-in-octave-under-cygwin/>`_
+
 Testing Programs
 -----------------
 ============== =============
