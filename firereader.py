@@ -136,12 +136,14 @@ def plotfirebool(ut1,booldat):
 
 
 if __name__ == '__main__':
-    """ example only, fake times"""
+    from argparse import ArgumentParser
+    p = ArgumentParser(description='convert .fire files to UT1 time')
+    p.add_argument('firefn',help='.fire filename') #'~/data/solis_runtime175.fire'
+    p.add_argument('ut1start',help='UT1 start time of camera from NMEA GPS yyyy-mm-ddThh:mm:ssZ') #'2015-09-01T12:00:00Z'
+    p = p.parse_args()
 
-    ut1start  = '2015-09-01T12:00:00Z' # trailing Z makes it UTC
-    firefn = '~/data/solis_runtime175.fire'
 
-    ut1,booldat = getut1fire(firefn,ut1start)
+    ut1,booldat = getut1fire(p.firefn,p.ut1start)
     try:
         plotfirebool(ut1,booldat)
         show()
