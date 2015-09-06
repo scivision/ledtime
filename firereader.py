@@ -54,6 +54,9 @@ def getut1fire(firefn,ut1start):
         #skip to data area, header is 1024 bytes long, so goto byte 1024 (zero-based index)
         f.seek(headerlengthbytes)
 
+        #NOTE: A for loop with f.seek() could read just the tiny parts of the fire file where matches are supposed to occur.
+        #this could give speed/RAM advantages if necessary
+
         # read DATA as it comes off disk, as uint8
         bytedat = np.fromfile(f,dtype=np.uint8)
 #%% find first fire pulse, this is where ut1start should correspond to.
@@ -127,7 +130,9 @@ def plotfirebool(ut1,booldat):
     ax = figure().gca()
     ax.plot(booldat)
     ax.set_ylim(-0.01,1.01)
-    ax.legend(('gps','trig','fire'))
+    ax.set_ylabel('boolean value')
+    ax.set_xlabel('sample #') #FIXME label with UT1 time
+    ax.legend(('trig','gps','fire'))
 
 
 if __name__ == '__main__':
