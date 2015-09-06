@@ -39,14 +39,7 @@ headerlengthbytes = 1024
 def getut1fire(firefn,ut1start):
     firefn = expanduser(firefn)
 #%% handle starttime
-    if isinstance(ut1start,string_types):
-        ut1 = (parse(ut1start) - epoch).total_seconds()
-    elif isinstance(ut1start,datetime):
-        ut1 = (ut1start-epoch).total_seconds()
-    elif isinstance(ut1start,(float,integer_types)):
-        pass #assuming it's already in UT1 unix epoch
-    else:
-        raise ValueError('I dont understand the format of the ut1 start time youre giving me')
+    ut1 = tout1(ut1start)
 #%% read data
     #read sample rate and fps.  Both are signed 64-bit integers used directly in indexing operations
     with open(firefn,'rb') as f:
@@ -77,6 +70,16 @@ def getut1fire(firefn,ut1start):
     booldat = np.unpackbits(bytedat[:500][:,None],axis=1)[:,-3:] #take first 500 samples to avoid overwhelming matplotlib
 
     return ut1_unix,booldat
+
+def tout1(ut1start):
+    if isinstance(ut1start,string_types):
+        return (parse(ut1start) - epoch).total_seconds()
+    elif isinstance(ut1start,datetime):
+        return (ut1start-epoch).total_seconds()
+    elif isinstance(ut1start,(float,integer_types)):
+        return ut1start #assuming it's already in UT1 unix epoch
+    else:
+        raise ValueError('I dont understand the format of the ut1 start time youre giving me')
 
 def find_first(item, vec):
     """return the index of the first occurence of item in vec
