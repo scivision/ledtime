@@ -15,7 +15,8 @@ bits we use:
 first 1024 bytes are header (with lots of spare space),
 so don't start reading boolean till byte 1024 (zero-based indexing)
 
-Note: the np.int64 are used because some computations actually need 64-bit integers. Best to keep one integer data type in these programs to avoid weird bugs.
+Note: the np.int64 are used because some computations actually need 64-bit integers. 
+Best to keep one integer data type for operations involving indexing in these programs to avoid weird bugs.
 
 """
 from __future__ import division,absolute_import
