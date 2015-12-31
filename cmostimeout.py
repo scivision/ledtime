@@ -7,13 +7,14 @@ it basically tells you, yes, the FPGA is running and knows how to count. The FPG
 timebase could have large error (yielding large absolute time error) and yet
 this column would be exactly the same.
 
-tk1: FPGA tick after frame was retrieved, apparently to compare with 'elapsed' column
+tk1: FPGA tick after frame was retrieved, to compare with 'elapsed' column
 
 elapsed: PC clock relative time since acquisition start, when frame was retrieved vis-a-vis tk1
 
 
 Michael Hirsch
 """
+from scipy.stats import linregress
 from numpy import arange
 from pathlib import Path
 from pandas import read_csv
@@ -34,8 +35,7 @@ data = read_csv(fn,sep='\s{1,}',skiprows=14,skipfooter=1,engine='python',
 N=data.shape[0]
 #%% per frame error
 
-dtick = data['tk1'].diff()
-dtick_sec = dtick*tick_sec
+dtick_sec = data['tk1'].diff()*tick_sec
 print(dtick_sec.describe())
 
 dt = data['elapsed'].diff()
@@ -59,10 +59,29 @@ for a in axs:
     a.set_xlabel('time error [sec.]')
 #%% accumulated error (bias)
 expectedElapsed = arange(N) * dtExpected
-elapsedError = data['elapsed'] - expectedElapsed
+
+elapsedErrorPC = data['elapsed'] - expectedElapsed
+elapsedErrorFPGA = data['tk1']*tick_sec - expectedElapsed
+elapsedErrorInt = data['tk0']*tick_sec - expectedElapsed
+"""
+Hmm, looks like the PC and FPGA have different error slopes--as expected due to large timebase errors
+let's do a linear regression
+"""
+
+FPGAslope,FPGAint = linregress(expectedElapsed,elapsedErrorFPGA)[:2]
+PCslope, PCint = linregress(expectedElapsed,elapsedErrorPC)[:2]
+
+#ax.scatter(elapsedErrorPC,elapsedErrorFPGA)
+#intc,slop = linregress(data['elapsed'],data['tk0']*tick_sec)[:2]
 
 ax = figure().gca()
-ax.plot(expectedElapsed,elapsedError)
+ax.plot(expectedElapsed,elapsedErrorPC,label='PC')
+ax.plot(expectedElapsed,expectedElapsed*PCslope + PCint,label='PCfit')
+
+ax.plot(expectedElapsed,elapsedErrorFPGA,label='FPGA')
+ax.plot(expectedElapsed,expectedElapsed*FPGAslope + FPGAint,label='FPGAfit')
+
+ax.legend(loc='best')
 ax.set_title('Cumulative timing error, N={}  fps={}'.format(N,fps))
 ax.set_xlabel('True elapsed time [sec.]')
 ax.set_ylabel('Accumulated Error [sec.]')
