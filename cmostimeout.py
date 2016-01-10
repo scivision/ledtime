@@ -81,6 +81,8 @@ ax.plot(expectedElapsed,expectedElapsed*PCslope + PCint,label='PCfit')
 ax.plot(expectedElapsed,elapsedErrorFPGA,label='FPGA')
 ax.plot(expectedElapsed,expectedElapsed*FPGAslope + FPGAint,label='FPGAfit')
 
+ax.plot(expectedElapsed,elapsedErrorInt)
+
 ax.legend(loc='best')
 ax.set_title('Cumulative timing error, N={}  fps={}'.format(N,fps))
 ax.set_xlabel('True elapsed time [sec.]')
