@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Example of reading HiST .fire file used to determine UTC time of camera frame
 
@@ -20,11 +20,10 @@ Best to keep one integer data type for operations involving indexing in these pr
 
 """
 from __future__ import division,absolute_import
+from pathlib import Path
 from numba import jit
-from os.path import expanduser
 from dateutil.parser import parse
 from datetime import datetime
-from six import string_types,integer_types
 from pytz import UTC
 import numpy as np
 from warnings import warn
@@ -37,12 +36,12 @@ epoch = datetime(1970,1,1,tzinfo=UTC)
 headerlengthbytes = 1024
 
 def getut1fire(firefn,ut1start):
-    firefn = expanduser(firefn)
+    firefn = Path(firefn).expanduser()
 #%% handle starttime
     ut1 = tout1(ut1start)
 #%% read data
     #read sample rate and fps.  Both are signed 64-bit integers used directly in indexing operations
-    with open(firefn,'rb') as f:
+    with firefn.open('rb') as f:
         # read HEADER
         Ts,fps = np.fromfile(f,dtype=np.int64,count=2)
         print('samples/sec: {}   frames/sec: {}  file: {}'.format(Ts,fps,firefn))
@@ -72,11 +71,11 @@ def getut1fire(firefn,ut1start):
     return ut1_unix,booldat
 
 def tout1(ut1start):
-    if isinstance(ut1start,string_types):
+    if isinstance(ut1start,str):
         return (parse(ut1start) - epoch).total_seconds()
     elif isinstance(ut1start,datetime):
         return (ut1start-epoch).total_seconds()
-    elif isinstance(ut1start,(float,integer_types)):
+    elif isinstance(ut1start,(float,int)):
         return ut1start #assuming it's already in UT1 unix epoch
     else:
         raise ValueError('I dont understand the format of the ut1 start time youre giving me')
