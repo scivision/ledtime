@@ -29,7 +29,7 @@ import numpy as np
 from warnings import warn
 try:
     from matplotlib.pyplot import figure,show
-except:
+except ImportError:
     pass
 
 epoch = datetime(1970,1,1,tzinfo=UTC)
