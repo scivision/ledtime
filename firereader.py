@@ -19,14 +19,13 @@ Note: the np.int64 are used because some computations actually need 64-bit integ
 Best to keep one integer data type for operations involving indexing in these programs to avoid weird bugs.
 
 """
-from __future__ import division,absolute_import
 from pathlib import Path
 from numba import jit
 from dateutil.parser import parse
 from datetime import datetime
 from pytz import UTC
 import numpy as np
-from warnings import warn
+import logging
 try:
     from matplotlib.pyplot import figure,show
 except ImportError:
@@ -44,7 +43,7 @@ def getut1fire(firefn,ut1start):
     with firefn.open('rb') as f:
         # read HEADER
         Ts,fps = np.fromfile(f,dtype=np.int64,count=2)
-        print('samples/sec: {}   frames/sec: {}  file: {}'.format(Ts,fps,firefn))
+        print('samples/sec: ',Ts,'frames/sec: ',fps,' file: ',firefn)
 
         #skip to data area, header is 1024 bytes long, so goto byte 1024 (zero-based index)
         f.seek(headerlengthbytes)
@@ -121,16 +120,16 @@ def matchtrigfire(bytedat,strideind,ut1start,fps):
         if b in (5,7): #trig+fire or trig+gps+fire
             ut1.append(ut1start+i*kineticsec)
         elif b in (4,6):
-            warn('camera failed to take image at fire sample # {}'.format(i))
+            logging.warning(f'camera failed to take image at fire sample # {i}')
         else:
-            warn('undefined measurement {} at fire sample # {}'.format(b,i))
+            logging.warning(f'undefined measurement {b} at fire sample # {i}')
         i+=1 #must advance whether fire happened or not
 
     return ut1
 
 def plotfirebool(ut1,booldat):
-    print('first/last camera frame {} / {}'.format(datetime.fromtimestamp(ut1[0], tz=UTC),
-                                                   datetime.fromtimestamp(ut1[-1],tz=UTC)))
+    print('first/last camera frame',datetime.fromtimestamp(ut1[0], tz=UTC),
+                                    datetime.fromtimestamp(ut1[-1],tz=UTC))
 
     ax = figure().gca()
     ax.plot(booldat)

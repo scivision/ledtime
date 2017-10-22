@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Reads Calgary sCMOS .out timing files
 
@@ -53,7 +53,7 @@ ax.set_title('FPGA time')
 dtickerr = dtick_sec - dtExpected
 dtickerr.hist(ax=ax,bins=100)
 
-fg.suptitle('Per-frame timing error, N={}  fps={}'.format(N,fps),size='xx-large')
+fg.suptitle(f'Per-frame timing error, N={N}  fps={fps}',size='xx-large')
 for a in axs:
     a.set_yscale('log')
     a.set_xlabel('time error [sec.]')
@@ -84,7 +84,7 @@ ax.plot(expectedElapsed,expectedElapsed*FPGAslope + FPGAint,label='FPGAfit')
 ax.plot(expectedElapsed,elapsedErrorInt)
 
 ax.legend(loc='best')
-ax.set_title('Cumulative timing error, N={}  fps={}'.format(N,fps))
+ax.set_title(f'Cumulative timing error, N={N}  fps={fps}')
 ax.set_xlabel('True elapsed time [sec.]')
 ax.set_ylabel('Accumulated Error [sec.]')
 ax.grid(True)
